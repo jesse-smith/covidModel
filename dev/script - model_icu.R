@@ -4,14 +4,14 @@ limited_data <- load_limited() %>%
   coviData::preprocess()
 
 limited_data %>%
-  dplyr::select(date, likely_covid_hospitalized) %>%
+  dplyr::select(date, likely_covid_icu) %>%
   na.contiguous() %$%
   model_hospital(
-    likely_covid_hospitalized,
+    likely_covid_icu,
     dates = date,
     niter = 11000
   ) ->
-model
+  model
 
 model$log.likelihood %>%
   tibble::as_tibble() %>%
@@ -19,7 +19,7 @@ model$log.likelihood %>%
   .[[1]] %>%
   exp() %>%
   {. / max(.)} ->
-lik
+  lik
 
 model$one.step.prediction.errors %>%
   tibble::as_tibble() %>%
@@ -28,7 +28,7 @@ model$one.step.prediction.errors %>%
   dplyr::summarize(dplyr::across(.fns = ~ weighted.mean(.x, w = lik))) %>%
   as.matrix() %>%
   mean() ->
-sigma
+  sigma
 
 model$state.contributions %>%
   apply(MARGIN = c(1,3), FUN = sum, na.rm = TRUE) %>%
@@ -37,9 +37,9 @@ model$state.contributions %>%
   dplyr::summarize(dplyr::across(.fns = ~ weighted.mean(.x, w = lik))) %>%
   tidyr::pivot_longer(cols = dplyr::everything()) %>%
   .[["value"]] ->
-trend
+  trend
 
-model %>% predict(h = as.Date("2020-12-25") - max(limited_data$date) + 1, quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
+model %>% predict(h = as.Date("2020-12-25") - max(limited_data$date), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
   tibble::tibble(
     obs   = NA_real_,
     trend = median,
@@ -52,12 +52,12 @@ model %>% predict(h = as.Date("2020-12-25") - max(limited_data$date) + 1, quanti
   ) %>%
   expm1() %>%
   dplyr::mutate(
-    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2020-12-25") - max(limited_data$date) + 1), by = 1),
+    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2020-12-25") - max(limited_data$date)), by = 1),
     .before = 1
   ) ->
 predictions
 
-material <- ggsci::pal_material(palette = "blue", n = 4, reverse = TRUE)
+material <- ggsci::pal_material(palette = "green", n = 4, reverse = TRUE)
 
 tibble::tibble(
   obs   = as.vector(model$original.series),
@@ -75,7 +75,7 @@ tibble::tibble(
     date = model$timestamp.info$timestamps,
     .before = 1
   ) ->
-observations
+  observations
 
 observations %>%
   tibble::add_row(
@@ -90,7 +90,7 @@ observations %>%
   ggplot2::geom_ribbon(ggplot2::aes(ymin = lower.05, ymax = upper.05, fill = "5%")) +
   ggplot2::geom_line(ggplot2::aes(y = obs), color = "gray23") +
   ggthemes::theme_fivethirtyeight(base_size = 20) +
-  ggplot2::labs(title = "Shelby County Hospital Census", caption = "Data Source: Healthcare Resource Tracking System (HRTS)") +
+  ggplot2::labs(title = "Shelby County ICU Census", caption = "Data Source: Healthcare Resource Tracking System (HRTS)") +
   ggplot2::scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   ggplot2::scale_y_continuous(breaks = seq(0, 10000, by = 50), labels = scales::label_comma(suffix = " patients")) +
   ggplot2::coord_cartesian(xlim = c(as.Date("2020-04-01"), max(predictions$date) + 1), ylim = c(0, max(predictions$upper.95))) +
@@ -165,7 +165,7 @@ observations %>%
     "label",
     x = observations$date[[NROW(observations)]],
     y = min(observations$lower.95[(NROW(observations) - 30):NROW(observations)], predictions$lower.95),
-    label = paste0("Hospital Census:\n", round(observations$obs[[NROW(observations)]]), " on ", format(observations$date[[NROW(observations)]], "%b %d")),
+    label = paste0("ICU Census:\n", round(observations$obs[[NROW(observations)]]), " on ", format(observations$date[[NROW(observations)]], "%b %d")),
     hjust = 0.5,
     vjust = 1,
     color = "gray23",
@@ -201,5 +201,5 @@ observations %>%
   ggplot2::ylab("COVID+ Census") +
   ggplot2::xlab("Date")
 
-ggplot2::ggsave(paste0("Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
+ggplot2::ggsave(paste0("ICUplot_", Sys.Date(), ".png"), width = 16, height = 9)
 
