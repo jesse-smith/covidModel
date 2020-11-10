@@ -1,6 +1,6 @@
 devtools::load_all()
 
-limited_data <- load_limited() %>%
+limited_data <- coviData:::load_limited() %>%
   coviData::preprocess()
 
 limited_data %>%
