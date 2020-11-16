@@ -39,7 +39,7 @@ model$state.contributions %>%
   .[["value"]] ->
 trend
 
-model %>% predict(h = as.Date("2020-12-25") - max(limited_data$date) + 1, quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
+model %>% predict(h = as.Date("2020-12-25") - max(limited_data$date), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
   tibble::tibble(
     obs   = NA_real_,
     trend = median,
@@ -52,7 +52,7 @@ model %>% predict(h = as.Date("2020-12-25") - max(limited_data$date) + 1, quanti
   ) %>%
   expm1() %>%
   dplyr::mutate(
-    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2020-12-25") - max(limited_data$date) + 1), by = 1),
+    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2020-12-25") - max(limited_data$date)), by = 1),
     .before = 1
   ) ->
 predictions
@@ -201,5 +201,5 @@ observations %>%
   ggplot2::ylab("COVID+ Census") +
   ggplot2::xlab("Date")
 
-ggplot2::ggsave(paste0("Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
+ggplot2::ggsave(paste0("Hplot_", Sys.Date(), ".svg"), width = 16, height = 9)
 
