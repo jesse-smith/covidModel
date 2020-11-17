@@ -199,7 +199,10 @@ observations %>%
     panel.background = ggplot2::element_rect(color = "white", fill = "white")
   ) +
   ggplot2::ylab("COVID+ Census") +
-  ggplot2::xlab("Date")
+  ggplot2::xlab("Date") ->
+plt
+
+saveRDS(plt, "icu.RDS")
 
 ggplot2::ggsave(paste0("ICUplot_", Sys.Date(), ".png"), width = 16, height = 9)
 

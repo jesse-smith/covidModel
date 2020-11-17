@@ -4,7 +4,7 @@ Title: Modeling Methods for the COVID-19 Epidemic in Shelby
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Jesse",
-           family = "Jesse",
+           family = "Smith",
            role = c("aut", "cre"),
            email = "jesse.smith@shelbycountytn.gov",
            comment = c(ORCID = "0000-0001-7375-2463"))
@@ -19,9 +19,9 @@ Imports:
     coviData (>= 0.0.0.9001),
     magrittr (>= 1.5),
     zoo (>= 1.8.8)
+Suggests: 
+    covr
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-Suggests: 
-    covr

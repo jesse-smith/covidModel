@@ -1,5 +1,7 @@
-devtools::load_all()
+devtools::
+library(covidModel)
 
+# Can also load limited dataset in with readxl, etc
 limited_data <- coviData:::load_limited() %>%
   coviData::preprocess()
 
@@ -199,7 +201,10 @@ observations %>%
     panel.background = ggplot2::element_rect(color = "white", fill = "white")
   ) +
   ggplot2::ylab("COVID+ Census") +
-  ggplot2::xlab("Date")
+  ggplot2::xlab("Date") ->
+plt
+
+saveRDS(plt, "hospital.RDS")
 
 ggplot2::ggsave(paste0("Hplot_", Sys.Date(), ".svg"), width = 16, height = 9)
 
