@@ -1,6 +1,6 @@
 Package: covidModel
-Title: Modeling Methods for the COVID-19 Epidemic in Shelby
-    County
+Title: COVID-19 Modeling Tools for Shelby County Health
+    Department
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Jesse",
@@ -13,20 +13,11 @@ Description: covidModel contains inference and prediction
     County. The focus is primarily on temporal data, though other methods
     may be included.
 License: GPL-3
-Imports: 
-    assertthat (>= 0.2.1),
+Imports:
     Boom (>= 0.9.6),
     bsts (>= 0.9.5),
-    coviData (>= 0.0.0.9001),
-    dplyr (>= 1.0.2),
-    forecast (>= 8.13),
     magrittr (>= 1.5),
-    pomp (>= 3.1),
-    tibble (>= 3.0.4),
-    tidyr (>= 1.1.2),
-    zoo (>= 1.8.8),
-    vctrs,
-    rlang (>= 0.1.2)
+    zoo (>= 1.8.8)
 Suggests: 
     covr,
     roxygen2

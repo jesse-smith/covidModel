@@ -16,10 +16,12 @@ on temporal data, though other methods may be included.
 You can install the development version of covidModel with:
 
 ``` r
-install.packages("devtools")
-devtools::install_github("covidModel")
+# install.packages("devtools")
+devtools::install_github("jesse-smith/covidModel")
 ```
 
 ## Code of Conduct
 
-Please note that the covidModel project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
+Please note that the covidModel project is released with a
+[Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
