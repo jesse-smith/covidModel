@@ -203,5 +203,5 @@ observations %>%
   ggplot2::ylab("COVID+ Census") +
   ggplot2::xlab("Date")
 
-ggplot2::ggsave(paste0("Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
+ggplot2::ggsave(paste0("figs/Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
 
