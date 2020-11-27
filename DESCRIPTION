@@ -15,12 +15,20 @@ Description: covidModel contains inference and prediction
 License: GPL-3
 Imports: 
     assertthat (>= 0.2.1),
+    Boom (>= 0.9.6),
     bsts (>= 0.9.5),
     coviData (>= 0.0.0.9001),
+    dplyr (>= 1.0.2),
+    forecast (>= 8.13),
     magrittr (>= 1.5),
+    pomp (>= 3.1),
+    tibble (>= 3.0.4),
+    tidyr (>= 1.1.2),
     zoo (>= 1.8.8)
 Suggests: 
     covr
+Remotes: 
+    jesse-smith/coviData
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

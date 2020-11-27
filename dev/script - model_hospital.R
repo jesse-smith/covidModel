@@ -1,5 +1,5 @@
-devtools::
-library(covidModel)
+devtools::load_all()
+# library(covidModel)
 
 # Can also load limited dataset in with readxl, etc
 limited_data <- coviData:::load_limited() %>%
@@ -203,5 +203,5 @@ observations %>%
   ggplot2::ylab("COVID+ Census") +
   ggplot2::xlab("Date")
 
-ggplot2::ggsave(paste0("Hplot_", Sys.Date(), ".svg"), width = 16, height = 9)
+ggplot2::ggsave(paste0("Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
 

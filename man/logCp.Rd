@@ -4,7 +4,7 @@
 \alias{logCp}
 \title{"Log(x + C)" Transform}
 \usage{
-logCp(x, C = sqrt(.Machine$double.eps))
+logCp(x, C = exp(1))
 }
 \arguments{
 \item{x}{A numeric vector to be transformed}

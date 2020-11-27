@@ -4,7 +4,7 @@
 \alias{expmC}
 \title{"Exp(x) - C" Transform}
 \usage{
-expmC(x, C = sqrt(.Machine$double.eps))
+expmC(x, C = exp(1))
 }
 \arguments{
 \item{x}{A numeric vector to be transformed}
