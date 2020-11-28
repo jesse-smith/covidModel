@@ -32,8 +32,7 @@
 vec_fun <- function(
   y,
   x = NULL,
-  ties = "ordered",
-  approx = FALSE
+  ties = "ordered"
 ) {
 
   # `splinefun()` isn't very strict or safe with its inputs; `vec_fun()` is
@@ -94,21 +93,12 @@ vec_fun <- function(
 
   domain_max <- max(x_vec, na.rm = TRUE)
 
-  if (!rlang::is_true(approx)) {
-    vec_fun <- stats::splinefun(
-      x = x_vec,
-      y = y_vec,
-      method = "natural",
-      ties = ties
-    )
-  } else {
-    vec_fun <- stats::approxfun(
-      x = x_vec,
-      y = y_vec,
-      method = "linear",
-      ties = ties
-    )
-  }
+  vec_splinefun <- stats::splinefun(
+    x = x_vec,
+    y = y_vec,
+    method = "natural",
+    ties = ties
+  )
 
   x_not_in_domain <- paste0(
     "`x` is outside the function domain of [",
@@ -136,7 +126,7 @@ vec_fun <- function(
     }
 
     tryCatch(
-      if (!approx) vec_fun(x, deriv = deriv) else vec_fun(x),
+      vec_splinefun(x, deriv = deriv),
       error = function(e) rlang::cnd_entrace(e) %>% rlang::cnd_signal()
     )
   }
@@ -145,7 +135,7 @@ vec_fun <- function(
 #' Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))
 #'
 #'
-functionalize_vec <- function(x, t = NULL, ...) {
+functionalize_vec <- function(x, t = NULL) {
 
   # Types of `t` where `functionalize_vec()` works
   t_is_dt_dttm <- lubridate::is.Date(t) | lubridate::is.POSIXt(t)
@@ -174,7 +164,7 @@ functionalize_vec <- function(x, t = NULL, ...) {
     )
   }
 
-  f <- vec_fun(y = x, x = t_as_num(t), ties = "ordered", ...)
+  f <- vec_fun(y = x, x = t_as_num(t), ties = "ordered")
 
   t_min <- min(t, na.rm = TRUE)
 
@@ -205,7 +195,7 @@ functionalize_vec <- function(x, t = NULL, ...) {
 
 }
 
-functionalize <- function(.data, .x, .t = NULL, ...) {
+functionalize <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
 
   .x <- if (rlang::is_missing(.x)) rlang::sym("data") else rlang::ensym(.x)
 
@@ -226,52 +216,80 @@ functionalize <- function(.data, .x, .t = NULL, ...) {
     ) %>%
     dplyr::select(.t, .x)
 
-  f <- functionalize_vec(x = tbl$.x, t = tbl$.t, ...)
-
-  attr(f, "data") <- tbl
+  f <- functionalize_vec(x = tbl$.x, t = tbl$.t)
+  
+  if (rlang::is_true(rtn_data) {
+    attr(f, "data") <- tbl
+  }
 
   f
 }
 
-integrate_dt <- function(.data, .x, .t = NULL, slices = 1e3) {
-  integrand <- functionalize(
+integrate_t <- function(.data, .x, .t = NULL, slices = 1e3L) {
+
+  slices <- vctrs::vec_cast(slices, to = integer())
+  
+  vctrs::vec_assert(slices, size = 1L)
+  
+  f1 <- interpolate(
     .data,
     .x = if (rlang::is_missing(.x)) rlang::missing_arg() else .x,
     .t = .t,
-    approx = TRUE
+    rtn_data = TRUE
   )
+  
+  .t_f1 <- attr(f1, "data")$.t
+  
+  attr(f1, "data") <- NULL
+  remove(.data, .x, .t)
 
-  .t_is_dt <- lubridate::is.Date(attr(integrand, "data")$.t)
+  .t_is_dt <- lubridate::is.Date(.t_f1)
 
-  .t_is_dttm <- lubridate::is.POSIXt(attr(integrand, "data")$.t)
+  .t_is_dttm <- lubridate::is.POSIXt(.t_f1)
 
   .t_is_dt_dttm <- .t_is_dt | .t_is_dttm
 
-  t_range <- range(attr(integrand, "data")$.t, na.rm = TRUE)
+  t_range <- range(.t_f1, na.rm = TRUE)
 
   if (.t_is_dt_dttm) {
     t_to_num <- function(t) lubridate::decimal_date(t)
   } else {
     t_to_num <- function(t) t
   }
-
-  t_min <- t_range[[1]]
-
-  t_max <- t_range[[2]]
-
-  n_intervals <- slices * vctrs::vec_size(attr(integrand, "data"))
-
-  t <- seq(t_min, t_max, length.out = n_intervals)
-
-  dplyr::tibble(
-    .t = t,
-    data = ((t[[2]] - t[[1]]) / 2) * cumsum(integrand(t_to_num(t)))
+  
+  
+  i_map <- .t_f1 %>%
+    vctrs::vec_seq_along() %>%
+    vctrs::vec_slice(2:vctrs::vec_size(.))
+  
+  max_slices <- i_map %>%
+    subtract(1L) %>%
+    multiply_by(slices)
+  
+  tibble::tibble(
+    t_map = .t_f1 %>%
+      vctrs::vec_slice(i_map) %>%
+      t_to_num(),
+    slices_map = slices * (i_map - 1L)
   ) %>%
-    # dplyr::mutate(data = data * (1 - 10/slices)) %>%
+    purrr::pmap_dbl(
+      ~ integrate(
+        f1,
+        lower = .$t_map[[1]],
+        upper = ..1,
+        subdivisions = ..2
+      )
+    ) %>% 
+    purrr::prepend(0) %>%
+    tibble::as_tibble() %>%
+    dplyr::transmute(
+      .t = .t,
+      data = value
+    ) %>%
     functionalize() ->
-  f
-
-  attributes(f) <- NULL
-
-  f
+  integral
+  
+  function(t, deriv = c(0L, 1L, 2L, 3L) {
+    integral(t, deriv = deriv)
+  }
 }
