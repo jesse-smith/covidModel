@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • covidModel</title>
+<title>Convert a Vector to a Continuous Function — vec_fun • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,12 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Convert a Vector to a Continuous Function — vec_fun" />
+<meta property="og:description" content="vec_fun() converts an input vector to a continuous, thrice-differentiable
+function. i is the function domain; if left empty, the vector indices will
+be used. Interpolation is performed using
+splinefun(method = &quot;natural&quot;); see that
+function for details." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -66,7 +71,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -108,42 +113,57 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Convert a Vector to a Continuous Function</h1>
+    
+    <div class="hidden name"><code>vec_fun.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p><code>vec_fun()</code> converts an input vector to a continuous, thrice-differentiable
+function. <code>i</code> is the function domain; if left empty, the vector indices will
+be used. Interpolation is performed using
+<code><a href='https://rdrr.io/r/stats/splinefun.html'>splinefun(method = "natural")</a></code>; see that
+function for details.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>vec_fun</span><span class='op'>(</span><span class='va'>y</span>, x <span class='op'>=</span> <span class='cn'>NULL</span>, ties <span class='op'>=</span> <span class='st'>"ordered"</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="functionalize_vec.html">functionalize_vec()</a></code> </p>
-        </td>
-        <td><p>Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>A vector to convert to a continuous function</p></td>
+    </tr>
+    <tr>
+      <th>ties</th>
+      <td><p><code>"ordered"</code>, a function that takes a single numeric vector and
+returns a single number, or a list of length 2 with components meeting the
+previous specifications. See the documentation for <code>ties</code> and "Details" in
+<code><a href='https://rdrr.io/r/stats/approxfun.html'>approx()</a></code> for further explanation.</p></td>
+    </tr>
+    <tr>
+      <th>i</th>
+      <td><p>An optional vector defining the input values for each output <code>x</code></p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A function with arguments <code>x</code> and <code>deriv</code> that returns the
+interpolated values of the input vectors (or the 1st - 3rd derivatives)</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p><code>vec_fun()</code> is stricter than <code><a href='https://rdrr.io/r/stats/splinefun.html'>splinefun()</a></code> in the accepted inputs; in
+<code>vec_fun()</code>, <code>x</code> and <code>i</code> (if provided) must be cast-able to <code><a href='https://rdrr.io/r/base/double.html'>double()</a></code> and
+of the same length.</p>
+<p>The <code>ties</code> argument determines behavior when two values have the same (<code>i</code>, <code>x</code>)
+coordinates. The default for <code>vec_fun()</code> is to assume the inputs are ordered
+and proceed as usual; this is different than the default for <code><a href='https://rdrr.io/r/stats/splinefun.html'>splinefun()</a></code>.</p>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

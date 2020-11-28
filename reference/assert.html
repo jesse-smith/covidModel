@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • covidModel</title>
+<title>Flexible Error Assertion with assert_that() and abort() — assert • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,9 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Flexible Error Assertion with assert_that() and abort() — assert" />
+<meta property="og:description" content="This is an extension of assert_that()
+that allows rlang-like error specification." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -66,7 +68,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -108,42 +110,75 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Flexible Error Assertion with <code>assert_that()</code> and <code>abort()</code></h1>
+    
+    <div class="hidden name"><code>assert.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>This is an extension of <code><a href='https://rdrr.io/pkg/assertthat/man/assert_that.html'>assert_that()</a></code>
+that allows rlang-like error specification.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>assert</span><span class='op'>(</span>
+  <span class='va'>...</span>,
+  message <span class='op'>=</span> <span class='cn'>NULL</span>,
+  class <span class='op'>=</span> <span class='cn'>NULL</span>,
+  data <span class='op'>=</span> <span class='cn'>NULL</span>,
+  trace <span class='op'>=</span> <span class='cn'>NULL</span>,
+  parent <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="functionalize_vec.html">functionalize_vec()</a></code> </p>
-        </td>
-        <td><p>Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>...</th>
+      <td><p>unnamed expressions that describe the conditions to be tested.
+Rather than combining expressions with <code>&amp;&amp;</code>, separate them by commas
+so that better error messages can be generated.</p></td>
+    </tr>
+    <tr>
+      <th>message</th>
+      <td><p>The message to display. Character vectors are
+formatted with <code><a href='https://rlang.r-lib.org/reference/format_error_bullets.html'>format_error_bullets()</a></code>. The first element
+defines a message header and the rest of the vector defines
+bullets. Bullets named <code>i</code> and <code>x</code> define info and error bullets
+respectively, with special Unicode and colour formatting applied
+if possible.</p>
+<p>If a message is not supplied, it is expected that the message is
+generated lazily through <a href='https://rlang.r-lib.org/reference/cnd_message.html'>conditionMessage()</a>. In
+that case, <code>class</code> must be supplied. Only <code>inform()</code> allows empty
+messages as it is occasionally useful to build user output
+incrementally.</p></td>
+    </tr>
+    <tr>
+      <th>class</th>
+      <td><p>Subclass of the condition. This allows your users
+to selectively handle the conditions signalled by your functions.</p></td>
+    </tr>
+    <tr>
+      <th>data</th>
+      <td><p>Additional data to be stored in the condition object</p></td>
+    </tr>
+    <tr>
+      <th>trace</th>
+      <td><p>A <code>trace</code> object created by <code><a href='https://rlang.r-lib.org/reference/trace_back.html'>trace_back()</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>parent</th>
+      <td><p>A parent condition object created by <code><a href='https://rlang.r-lib.org/reference/abort.html'>abort()</a></code>.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p><code>TRUE</code> if the assertions evaluate to <code>TRUE</code>, otherwise an error
+condition</p>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
