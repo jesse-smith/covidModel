@@ -134,7 +134,7 @@ vec_fun <- function(
 
 #' Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))
 #'
-#'
+#' This is just added code to vec_fun- need to think about better separation of responsiblities
 functionalize_vec <- function(x, t = NULL) {
 
   # Types of `t` where `functionalize_vec()` works
@@ -195,7 +195,9 @@ functionalize_vec <- function(x, t = NULL) {
 
 }
 
-functionalize <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
+#' Interpolate a Continuous Function of Time
+#' `interpolate()` creates a function of time from a time-indexed input object. It powers `functionalize()`.
+interpolate <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
 
   .x <- if (rlang::is_missing(.x)) rlang::sym("data") else rlang::ensym(.x)
 
@@ -225,7 +227,9 @@ functionalize <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
   f
 }
 
-integrate_t <- function(.data, .x, .t = NULL, slices = 1e3L) {
+#' Integrate a Vector w.r.t. Time
+#' `integrate_dt()`
+functionalize <- function(.data, .x, .t = NULL, slices = 1e3L) {
 
   slices <- vctrs::vec_cast(slices, to = integer())
   
@@ -286,7 +290,7 @@ integrate_t <- function(.data, .x, .t = NULL, slices = 1e3L) {
       .t = .t,
       data = value
     ) %>%
-    functionalize() ->
+    interpolate() ->
   integral
   
   function(t, deriv = c(0L, 1L, 2L, 3L) {
