@@ -17,7 +17,8 @@ Imports:
     Boom (>= 0.9.6),
     bsts (>= 0.9.5),
     magrittr (>= 1.5),
-    zoo (>= 1.8.8)
+    zoo (>= 1.8.8),
+    rlang (>= 0.1.2)
 Suggests: 
     covr,
     roxygen2
