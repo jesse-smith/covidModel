@@ -1,6 +1,6 @@
 devtools::load_all()
-# library(covidModel)
-
+library(covidModel)
+library(magrittr)
 # Can also load limited dataset in with readxl, etc
 limited_data <- coviData:::load_limited() %>%
   coviData::preprocess()

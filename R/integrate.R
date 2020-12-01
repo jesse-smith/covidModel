@@ -135,7 +135,7 @@ vec_fun <- function(
 #' Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))
 #'
 #' This is just added code to vec_fun- need to think about better separation of responsiblities
-functionalize_vec <- function(x, t = NULL) {
+interpolate_vec <- function(x, t = NULL) {
 
   # Types of `t` where `functionalize_vec()` works
   t_is_dt_dttm <- lubridate::is.Date(t) | lubridate::is.POSIXt(t)
@@ -218,9 +218,9 @@ interpolate <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
     ) %>%
     dplyr::select(.t, .x)
 
-  f <- functionalize_vec(x = tbl$.x, t = tbl$.t)
-  
-  if (rlang::is_true(rtn_data) {
+  f <- interpolate_vec(x = tbl$.x, t = tbl$.t)
+
+  if (rlang::is_true(rtn_data)) {
     attr(f, "data") <- tbl
   }
 
@@ -232,18 +232,18 @@ interpolate <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
 functionalize <- function(.data, .x, .t = NULL, slices = 1e3L) {
 
   slices <- vctrs::vec_cast(slices, to = integer())
-  
+
   vctrs::vec_assert(slices, size = 1L)
-  
+
   f1 <- interpolate(
     .data,
     .x = if (rlang::is_missing(.x)) rlang::missing_arg() else .x,
     .t = .t,
     rtn_data = TRUE
   )
-  
+
   .t_f1 <- attr(f1, "data")$.t
-  
+
   attr(f1, "data") <- NULL
   remove(.data, .x, .t)
 
@@ -260,16 +260,16 @@ functionalize <- function(.data, .x, .t = NULL, slices = 1e3L) {
   } else {
     t_to_num <- function(t) t
   }
-  
-  
+
+
   i_map <- .t_f1 %>%
     vctrs::vec_seq_along() %>%
     vctrs::vec_slice(2:vctrs::vec_size(.))
-  
+
   max_slices <- i_map %>%
     subtract(1L) %>%
     multiply_by(slices)
-  
+
   tibble::tibble(
     t_map = .t_f1 %>%
       vctrs::vec_slice(i_map) %>%
@@ -283,7 +283,7 @@ functionalize <- function(.data, .x, .t = NULL, slices = 1e3L) {
         upper = ..1,
         subdivisions = ..2
       )
-    ) %>% 
+    ) %>%
     purrr::prepend(0) %>%
     tibble::as_tibble() %>%
     dplyr::transmute(
@@ -292,8 +292,8 @@ functionalize <- function(.data, .x, .t = NULL, slices = 1e3L) {
     ) %>%
     interpolate() ->
   integral
-  
-  function(t, deriv = c(0L, 1L, 2L, 3L) {
+
+  function(t, deriv = c(0L, 1L, 2L, 3L)) {
     integral(t, deriv = deriv)
   }
 }
