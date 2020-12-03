@@ -10,9 +10,10 @@
 #' `vec_fun()`, `x` and `i` (if provided) must be cast-able to `double()` and
 #' of the same length.
 #'
-#' The `ties` argument determines behavior when two values have the same (`i`, `x`)
-#' coordinates. The default for `vec_fun()` is to assume the inputs are ordered
-#' and proceed as usual; this is different than the default for `splinefun()`.
+#' The `ties` argument determines behavior when two values have the same
+#' (`i`, `x`) coordinates. The default for `vec_fun()` is to assume the inputs
+#' are ordered and proceed as usual; this is different than the default for
+#' `splinefun()`.
 #'
 #' @param x A vector to convert to a continuous function
 #'
@@ -134,8 +135,16 @@ vec_fun <- function(
 
 #' Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))
 #'
-#' This is just added code to vec_fun- need to think about better separation of responsiblities
-interpolate_vec <- function(x, t = NULL) {
+#' This is just added code to `vec_fun()`- need to think about better separation
+#' of responsiblities
+#'
+#' @param x A vector to interpolate
+#'
+#' @param t An optional time index; if empty, `interpolate_vec()` will use the
+#'   index of `x`
+#'
+#' @return A (thrice) differentiable function interpolating `t` and `x`
+interpolate_vec <- function(x, t = vec_seq_along(x)) {
 
   # Types of `t` where `functionalize_vec()` works
   t_is_dt_dttm <- lubridate::is.Date(t) | lubridate::is.POSIXt(t)
@@ -196,7 +205,12 @@ interpolate_vec <- function(x, t = NULL) {
 }
 
 #' Interpolate a Continuous Function of Time
-#' `interpolate()` creates a function of time from a time-indexed input object. It powers `functionalize()`.
+#' `interpolate()` creates a function of time from a time-indexed input object.
+#' It powers `functionalize()`.
+#'
+#' @param .data A input dataset with a column to interpolate
+#'
+#' @param .x
 interpolate <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
 
   .x <- if (rlang::is_missing(.x)) rlang::sym("data") else rlang::ensym(.x)
