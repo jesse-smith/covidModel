@@ -15,6 +15,8 @@ previous specifications. See the documentation for \code{ties} and "Details" in
 \code{\link[stats:approx]{approx()}} for further explanation.}
 
 \item{i}{An optional vector defining the input values for each output \code{x}}
+
+\item{dev_interp}{Development argument - do not use}
 }
 \value{
 A function with arguments \code{x} and \code{deriv} that returns the
@@ -32,8 +34,9 @@ function for details.
 \code{vec_fun()}, \code{x} and \code{i} (if provided) must be cast-able to \code{double()} and
 of the same length.
 
-The \code{ties} argument determines behavior when two values have the same (\code{i}, \code{x})
-coordinates. The default for \code{vec_fun()} is to assume the inputs are ordered
-and proceed as usual; this is different than the default for \code{splinefun()}.
+The \code{ties} argument determines behavior when two values have the same
+(\code{i}, \code{x}) coordinates. The default for \code{vec_fun()} is to assume the inputs
+are ordered and proceed as usual; this is different than the default for
+\code{splinefun()}.
 }
 \keyword{internal}

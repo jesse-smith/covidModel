@@ -3,186 +3,164 @@ estimate_delay <- function(
   .data,
   .collection_date = collection_date,
   .report_date = report_date,
-  prob = 0.9,
-  period = 7L
+  pct = 0.9,
+  period = 14L,
+  today = Sys.Date(),
+  rtn = c("with_last_complete", "incomplete_only", "all"),
+  min_dt = as.Date("2020-04-12")
 ) {
 
-  # Release memory if `.data` has additional columns
-  data <- dplyr::select(
-    .data,
-    {{ .collection_date }},
-    {{ .report_date }}
-  )
+  rtn <- rlang::arg_match(rtn)[[1]]
+
+  # Releases memory if `.data` has additional columns
+  data <- dplyr::select(.data, {{ .collection_date }}, {{ .report_date }})
   remove(.data)
-  
-  # Check that `data` is 2 columns
-  assert_that(
+
+  assertthat::assert_that(
     NCOL(data) == 2,
     msg = paste0(
-      "The selections for ",
-      "`.collection_date` and ",
-      "`.report_date` much match ",
-      "exactly one column each"
+      "The selections for `.collection_date` and `.report_date` ",
+      "much match exactly one column each"
     )
   )
-  
+
   # Column names are easier to reference by and make for more informative errors
-   c_nm <- data %>% 
+   collect_nm <- data %>%
     dplyr::select({{ .collection_date }}) %>%
     colnames()
-  r_nm <- data %>%
+
+  report_nm <- data %>%
     dplyr::select({{ .report_date }}) %>%
     colnames()
-    
+
   # Each selection should match one column
   purrr::when(
-    vec_size(c_nm),
+    vec_size(collect_nm),
     . > 1 ~ rlang::abort(
       paste0(
-        rlang::enexpr(.collection_date) %>%
-        rlang::expr_label(),
+        rlang::enexpr(.collection_date) %>% rlang::expr_label(),
         "\n\n",
-        "must select one column, ",
-        "but it matches multiple: ",
-        rlang::format_error_bullets(c_nm)
+        "must select one column, but it matches multiple:\n",
+        rlang::format_error_bullets(collect_nm)
       )
     ),
     . < 1 ~ rlang::abort(
       paste0(
-        rlang::enexpr(.collection_date) %>%
-        rlang::expr_label(),
+        rlang::enexpr(.collection_date) %>% rlang::expr_label(),
         "\n\n",
-        "must select one column ",
-        "but it matches none."
+        "must select one column, but it matches none."
       )
     )
   )
-  
+
   purrr::when(
-    vec_size(r_nm),
+    vec_size(report_nm),
     . > 1 ~ rlang::abort(
       paste0(
-        rlang::enexpr(.report_date) %>%
-        rlang::expr_label(),
+        rlang::enexpr(.report_date) %>% rlang::expr_label(),
         "\n\n",
-        "must select one column, ",
-        "but it matches multiple: ",
-        rlang::format_error_bullets(r_nm)
+        "must select one column, but it matches multiple:\n",
+        rlang::format_error_bullets(report_nm)
       )
     ),
     . < 1 ~ rlang::abort(
       paste0(
-        rlang::enexpr(.report_date) %>%
-        rlang::expr_label(),
+        rlang::enexpr(.report_date) %>% rlang::expr_label(),
         "\n\n",
-        "must select one column ",
-        "but it matches none."
+        "must select one column, but it matches none."
       )
     )
   )
-  
-  # reference using symbols for better error messages
-  c_sym <- rlang::sym(c_nm)
-  r_sym <- rlang::sym(r_nm)
-  
-  rob_mean_sliding <- timetk::slidify(
-    ~ MASS::rlm(. ~ 1L, method = "MM") %>%
-      coef(),
+
+  # Variables must be dates
+  assertthat::assert_that(
+    lubridate::is.Date(data[[collect_nm]]),
+    msg = paste0(collect_nm, " must be of type `Date`")
+  )
+
+  assertthat::assert_that(
+    lubridate::is.Date(data[[report_nm]]),
+    msg = paste0(report_nm, " must be of type `Date`")
+  )
+
+  if (period >= 14L) {
+    wt_mean <- function(x, w) {
+      MASS::rlm(
+        x ~ 1L,
+        weights = w,
+        na.action = na.exclude,
+        wt.method = "case",
+        maxit = 1e4
+      ) %>% coef()
+    }
+  } else {
+    rlang::warn("`period` is less than 14 days; using non-robust average")
+    wt_mean <- function(x, w) {
+      weighted.mean(
+        x,
+        w = w,
+        na.rm = TRUE
+      )
+    }
+  }
+  # Rolling weighted mean
+  wt_mean_rolling <- timetk::slidify(
+    ~ wt_mean(.x, w = .y),
     .period = period,
     .align = "right",
+    .partial = FALSE,
     .unlist = TRUE
   )
-  
-  data %>%
-  # Function is designed to work with dates
-    assertr::assert(lubridate::is.Date, dplyr::everything()) %>%
-    # Collection date can't be after report date; print filter message to notify user of removals
-    tidylog::filter(
-      !!c_sym <= !!r_sym
-    ) %>%
-    # Calculate delay
-    dplyr::mutate(
-      delay = as.numeric(
-        !!r_sym - !!c_sym
-      )
-	) %>%
-	# Operate within each date
-	dplyr::group_by(!!c_sym) %>%
-	# Calculate quantile
-	dplyr::summarize(
-	  threshold = delay %>%
-	    stats::quantile(
-	      prob = prob,
-	      type = 8
-	    ) %>% 
-	    as.integer()
-	) %>%
-	dplyr::ungroup() %>%
-	dplyr::arrange(!!c_sym) %>%
-	dplyr::mutate(
-	  threshold = threshold %>%
-	    rob_mean_sliding()
-	  delay = .data[["threshold"]] %>%
-	    vec_seq_along() %>%
-	    vec_order("desc")
-	) %>%
-	dplyr::filter(
-	  .data[["threshold"]] > .data[["delay"]] - 1L
-	) %>%
-	dplyr::filter(
-    .data[["delay"]] == max(.data[["delay"]], na.rm = TRUE)
-  ) %>%
-  dplyr::select(!!c_sym, .data[["delay"]])
-# Weighted by person ###########################
-	# Count
-	tidylog::count(!!c_sym, delay, sort = TRUE) %>%
-    tidyr::pivot_wider(
-      names_from = delay,
-      names_prefix = "delay_",
-      values_from = n,
-      values_fill = 0
-    ) %>%
-    dplyr::mutate(
-      dplyr::across(
-        dplyr::starts_with("delay_"),
-        ~ timetk::slidify_vec(
-          .x,
-          ~ sum(.x, na.rm = TRUE),
-          .period = period,
-          .align  = "right",
-          .partial = TRUE
-		)
-	  )
-	) %>%
-    tidyr::pivot_longer(
-      dplyr::starts_with("delay_"),
-      names_to = "delay",
-      names_prefix = "delay_",
-      names_transform = list(delay = as.integer),
-      values_to = "n",
-      values_transform = list(n = as.integer)
-	) %>%
-    dplyr::arrange(!!c_sym, delay) %>%
-    dplyr::group_by(!!c_sym) %>%
-    dplyr::summarize(
-      threshold = .data[["n"]] %>%
-        tidyr::na_replace(0) %>%
-        cumsum() %>%
-        divide_by(sum(.data[["n"]]), na.rm = TRUE)) %>%
-        is_weakly_greater_than(prob) %>%
-        vec_slice(x = .data[["delay"]]) %>%
-        extract2(1),
-	) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(
-      delay = .data[["threshold"]] %>% 
-      vec_seq_along() %>% 
-      vec_order("desc")
-	) %>%
-    dplyr::filter(.data[["threshold"]] > .data[["delay"]] - 1L) %>%
-  dplyr::filter(
-    .data[["delay"]] == max(.data[["delay"]], na.rm = TRUE)
-  ) %>%
-  dplyr::select(!!c_sym, .data[["delay"]])
 
+  removing_min_dt <- paste0("Removing collection dates earlier than ", min_dt)
+
+  filtering_illogical_or_missing <- paste0(
+    "Filtering logically inconsistent or missing observations"
+  )
+
+  data %T>%
+    # Inform user of filtered observations
+    {rlang::inform(filtering_illogical_or_missing)} %>%
+    tidylog::filter(
+      dplyr::between(.data[[collect_nm]], as.Date("2020-03-05"), Sys.Date()),
+      dplyr::between(.data[[report_nm]], as.Date("2020-03-05"), Sys.Date()),
+      .data[[collect_nm]] <= .data[[report_nm]],
+      !is.na(.data[[collect_nm]]),
+      !is.na(.data[[report_nm]])
+    ) %T>%
+    {rlang::inform(removing_min_dt)} %>%
+    tidylog::filter(.data[[collect_nm]] >= min_dt) %>%
+    dplyr::mutate(
+      delay = as.integer(.data[[report_nm]] - .data[[collect_nm]])
+	  ) %>%
+    dplyr::group_by(.data[[collect_nm]]) %>%
+    dplyr::summarize(
+      delay = quantile(delay, prob = pct, type = 8),
+      n = dplyr::n()
+    ) %>%
+    fill_dates(!!rlang::sym(collect_nm), end = today) %>%
+    dplyr::transmute(
+      .data[[collect_nm]],
+      prior_delay = wt_mean_rolling(.data[["delay"]], .data[["n"]]),
+      t_from_today = as.integer(today - .data[[collect_nm]]),
+      incomplete = (round(prior_delay) >= t_from_today) %>%
+        tidyr::replace_na(FALSE) %>%
+        dplyr::cumany()
+    ) %>%
+    dplyr::select(-t_from_today) %>%
+    purrr::when(
+      rtn == "with_last_complete" ~ dplyr::mutate(
+          .,
+          f = dplyr::cumany(dplyr::lead(.data[["incomplete"]]))
+        ) %>%
+        dplyr::filter(f) %>%
+        dplyr::select(-f),
+      rtn == "incomplete_only" ~ dplyr::filter(., .data[["incomplete"]]),
+      rtn == "all" ~ .
+    ) %>%
+    dplyr::mutate(
+      delay = today - .data[["collection_date"]],
+      .before = "incomplete"
+    )
 }
+

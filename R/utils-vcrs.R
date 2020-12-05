@@ -6,7 +6,8 @@
 #' size-stability useful for analyzing function interfaces. See the vctrs
 #' site at \url{https://vctrs.r-lib.org/} for more information.
 #'
+#' @md
 #' @name vctr-helpers
-#'
+#' @keywords internal
 #' @import vctrs
 NULL
