@@ -82,7 +82,8 @@ estimate_delay <- function(
     lubridate::is.Date(data[[report_nm]]),
     msg = paste0(report_nm, " must be of type `Date`")
   )
-
+  
+  # Prefer robust mean, but use non_robust if period isn't long enough 
   if (period >= 14L) {
     wt_mean <- function(x, w) {
       MASS::rlm(
