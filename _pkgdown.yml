@@ -1,2 +1,4 @@
 template:
   bootswatch: paper
+url: https://jesse-smith.github.io/covidModel
+development: unreleased
