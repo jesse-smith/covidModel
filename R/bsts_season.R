@@ -57,7 +57,7 @@ bsts_season.regression <- function(
   }
   
   if (rlang::is_null(season)) {
-    season <- "auto"
+    season <- 1L
   }
   
   period <- timetk::tk_get_frequency(
@@ -65,11 +65,11 @@ bsts_season.regression <- function(
     period = period
   )
   
-  period <- timetk::tk_get_frequency(
+  season <- timetk::tk_get_frequency(
     timetk::tk_index(y),
     period = season
   )
-
+  
   bsts::AddSeasonal(
     state.specification = state,
     y = y,
