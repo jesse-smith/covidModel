@@ -1,4 +1,4 @@
-# Weight average by number of people, recency, or none?
+
 estimate_delay <- function(
   .data,
   .collection_date = collection_date,
@@ -6,7 +6,7 @@ estimate_delay <- function(
   pct = 0.9,
   period = 14L,
   today = Sys.Date(),
-  rtn = c("with_last_complete", "incomplete_only", "all"),
+  rtn = c("last_complete", "incomplete_only", "all"),
   min_dt = as.Date("2020-04-12")
 ) {
 
@@ -82,8 +82,8 @@ estimate_delay <- function(
     lubridate::is.Date(data[[report_nm]]),
     msg = paste0(report_nm, " must be of type `Date`")
   )
-  
-  # Prefer robust mean, but use non_robust if period isn't long enough 
+
+  # Prefer robust mean, but use non_robust if period isn't long enough
   if (period >= 14L) {
     wt_mean <- function(x, w) {
       MASS::rlm(
@@ -150,17 +150,20 @@ estimate_delay <- function(
     ) %>%
     dplyr::select(-t_from_today) %>%
     purrr::when(
-      rtn == "with_last_complete" ~ dplyr::mutate(
+      rtn == "last_complete" ~ dplyr::mutate(
           .,
           f = dplyr::cumany(dplyr::lead(.data[["incomplete"]]))
         ) %>%
-        dplyr::filter(f) %>%
-        dplyr::select(-f),
-      rtn == "incomplete_only" ~ dplyr::filter(., .data[["incomplete"]]),
+        dplyr::filter(.data[["f"]]) %>%
+        dplyr::select(-.data[["f"]]) %>%
+        dplyr::filter(
+          .data[[collect_nm]] == min(.data[[collect_nm]], na.rm = TRUE)
+        ),
+      rtn == "incomplete" ~ dplyr::filter(., .data[["incomplete"]]),
       rtn == "all" ~ .
     ) %>%
     dplyr::mutate(
-      delay = today - .data[["collection_date"]],
+      delay = today - .data[[collect_nm]],
       .before = "incomplete"
     )
 }

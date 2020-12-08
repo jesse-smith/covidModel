@@ -38,8 +38,10 @@ bsts_trend <- function(
   method = c("semilocal", "local", "robust", "level"),
   ...
 ) {
-  method <- rlang::arg_match(method)[[1]] %>%
-    set_attr(which = "class")
+
+  method <- rlang::arg_match(method)[[1]]
+
+  attr(method, which = "class") <- method
 
   UseMethod("bsts_trend", method)
 
@@ -52,7 +54,7 @@ bsts_trend <- function(
 #' @export
 bsts_trend.semilocal <- function(
   state = list(),
-  y = state[["y"]],
+  .data = state[[".data"]],
   method = "semilocal",
   level.sigma.prior = NULL,
   slope.mean.prior = NULL,
@@ -63,9 +65,12 @@ bsts_trend.semilocal <- function(
   sdy = NULL,
   initial.y = NULL
 ) {
+
+  show(.data)
+
   bsts::AddSemilocalLinearTrend(
-    state.specification = state,
-    y = y,
+    state.specification = inset2(state, ".data", NULL),
+    y = .data,
     level.sigma.prior = level.sigma.prior,
     slope.mean.prior = slope.mean.prior,
     slope.ar1.prior = slope.ar1.prior,
@@ -75,7 +80,7 @@ bsts_trend.semilocal <- function(
     sdy = sdy,
     initial.y = initial.y
   ) %>%
-    inset2("y", y)
+    inset2(".data", .data)
 }
 
 #' Local Linear Trend State Component
@@ -85,7 +90,7 @@ bsts_trend.semilocal <- function(
 #' @export
 bsts_trend.local <- function(
   state = list(),
-  y = state[["y"]],
+  .data = state[[".data"]],
   method = "local",
   level.sigma.prior = NULL,
   slope.sigma.prior = NULL,
@@ -95,8 +100,8 @@ bsts_trend.local <- function(
   initial.y = NULL
 ) {
   bsts::AddLocalLinearTrend(
-    state.specification = state,
-    y = y,
+    state.specification = inset2(state, ".data", NULL),
+    y = .data,
     level.sigma.prior = level.sigma.prior,
     slope.sigma.prior = slope.sigma.prior,
     initial.level.prior = initial.level.prior,
@@ -104,7 +109,7 @@ bsts_trend.local <- function(
     sdy = sdy,
     initial.y = initial.y
   ) %>%
-    inset2("y", y)
+    inset2(".data", .data)
 }
 
 #' Robust Local Linear Trend State Component
@@ -114,7 +119,7 @@ bsts_trend.local <- function(
 #' @export
 bsts_trend.robust <- function(
   state = list(),
-  y = state[["y"]],
+  .data = state[[".data"]],
   method = "robust",
   save.weights = FALSE,
   level.sigma.prior = NULL,
@@ -127,7 +132,7 @@ bsts_trend.robust <- function(
   initial.y = NULL
 ) {
   bsts::AddStudentLocalLinearTrend(
-    state.specification = state,
+    state.specification = inset2(state, ".data", NULL),
     y,
     save.weights = save.weights,
     level.sigma.prior = level.sigma.prior,
@@ -139,7 +144,7 @@ bsts_trend.robust <- function(
     sdy = sdy,
     initial.y = initial.y
   ) %>%
-    inset2("y", y)
+    inset2(".data", .data)
 }
 
 #' Local Level Trend State Component
@@ -149,7 +154,7 @@ bsts_trend.robust <- function(
 #' @export
 bsts_trend.level <- function(
   state = list(),
-  y,
+  .data = state[[".data"]],
   method = "level",
   sigma.prior = NULL,
   initial.state.prior = NULL,
@@ -157,12 +162,12 @@ bsts_trend.level <- function(
   initial.y = NULL
 ) {
   bsts::AddLocalLevel(
-    state.specification = state,
+    state.specification = inset2(state, ".data", NULL),
     y = y,
     sigma.prior = sigma.prior,
     initial.state.prior = initial.state.prior,
     sdy = sdy,
     initial.y = initial.y
   ) %>%
-    inset2("y", y)
+    inset2(".data", .data)
 }

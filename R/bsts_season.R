@@ -26,24 +26,29 @@
 #'   observation within a period. Can be supplied in the same
 #'   way as `period`. This parameter is ignored for
 #'   `method = "harmonic"`.
+#'
+#' @export
 bsts_season <- function(
   state = list(),
-  y = state[["y"]],
-  method = c("regression", "harmonic"),
+  .data = state[[".data"]],
+  # method = c("regression", "harmonic"),
   period = NULL,
-  seasons = NULL,
+  season = NULL,
   ...
 ) {
-  method <- rlang::arg_match(method) %>%
-    vec_slice(i = 1L) %>%
-    set_attr(which = "class")
-
-  UseMethod("bsts_seasonal", method)
+  bsts_season_regression(
+    state = state,
+    .data = state[[".data"]],
+    period = period,
+    season = season,
+    ...
+  )
 }
 
-bsts_season.regression <- function(
+#' @export
+bsts_season_regression <- function(
   state = list(),
-  y = state[["y"]],
+  .data = state[[".data"]],
   method = "regression",
   period = NULL,
   season = NULL,
@@ -51,39 +56,41 @@ bsts_season.regression <- function(
   initial.state.prior = NULL,
   sdy = NULL
 ) {
-  
+
   if (rlang::is_null(period)) {
     period <- "auto"
   }
-  
+
   if (rlang::is_null(season)) {
-    season <- "auto"
+    season <- 1L
   }
-  
+
   period <- timetk::tk_get_frequency(
-    timetk::tk_index(y),
+    timetk::tk_index(.data),
     period = period
   )
-  
-  period <- timetk::tk_get_frequency(
-    timetk::tk_index(y),
+
+  season <- timetk::tk_get_frequency(
+    timetk::tk_index(.data),
     period = season
   )
 
   bsts::AddSeasonal(
-    state.specification = state,
-    y = y,
+    state.specification = inset2(state, ".data", NULL),
+    y = .data,
     nseasons = period,
     season.duration = season,
     sigma.prior = sigma.prior,
     initial.state.prior = initial.state.prior,
     sdy = sdy
-  )
+  ) %>%
+    inset2(".data", .data)
 }
 
+#' Method dispatch not working
 bsts_season.harmonic <- function(
   state = list(),
-  y = state[["y"]],
+  .data = state[[".data"]],
   method = "harmonic",
   period = NULL,
   season = NULL,
@@ -95,18 +102,45 @@ bsts_season.harmonic <- function(
   if (rlang::is_null(period)) {
     period <- "auto"
   }
-  
+
   if (!rlang::is_null(season)) {
     rlang::warn("`season` is ignored when `method = 'harmonic'`")
   }
-  
+
   bsts::AddTrig(
-    state.specification = inset2(list(), "y", NULL),
-    y = y,
-    period = period,t
+    state.specification = inset2(state, ".data", NULL),
+    y = .data,
+    period = period,
     frequencies = 1L,
     sigma.prior = sigma.prior,
     sdy = sdy,
     method = "harmonic"
-  )
+  ) %>%
+    inset2(".data", .data)
+}
+
+#' Unfinished
+bsts_season.dynamic <- function(
+  state = list(),
+  .data = state[[".data"]],
+  method = "dynamic",
+  period = NULL,
+  season = NULL,
+  ar = TRUE,
+  sigma.prior = NULL,
+  na.action = na.exclude,
+  ...
+) {
+
+  ar <- rlang::arg_match(ar, values = c(TRUE, FALSE))
+
+  bsts::AddDynamicRegression(
+    state.specification = inset2(state, ".data", NULL),
+    formula = .data,
+    data = .data,
+    model.options = coef_model,
+    na.action = na.action,
+    ...
+  ) %>%
+    inset2(".data", .data)
 }
