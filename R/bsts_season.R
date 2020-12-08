@@ -74,7 +74,7 @@ bsts_season_regression <- function(
     timetk::tk_index(.data),
     period = season
   )
-
+  
   bsts::AddSeasonal(
     state.specification = inset2(state, ".data", NULL),
     y = .data,
