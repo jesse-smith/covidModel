@@ -52,7 +52,7 @@ function. i is the function domain; if left empty, the vector indices will
 be used. Interpolation is performed using
 splinefun(method = &quot;natural&quot;); see that
 function for details." />
-<meta property="og:image" content="/logo.png" />
+<meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
 
@@ -148,6 +148,10 @@ previous specifications. See the documentation for <code>ties</code> and "Detail
       <th>i</th>
       <td><p>An optional vector defining the input values for each output <code>x</code></p></td>
     </tr>
+    <tr>
+      <th>dev_interp</th>
+      <td><p>Development argument - do not use</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -159,9 +163,10 @@ interpolated values of the input vectors (or the 1st - 3rd derivatives)</p>
     <p><code>vec_fun()</code> is stricter than <code><a href='https://rdrr.io/r/stats/splinefun.html'>splinefun()</a></code> in the accepted inputs; in
 <code>vec_fun()</code>, <code>x</code> and <code>i</code> (if provided) must be cast-able to <code><a href='https://rdrr.io/r/base/double.html'>double()</a></code> and
 of the same length.</p>
-<p>The <code>ties</code> argument determines behavior when two values have the same (<code>i</code>, <code>x</code>)
-coordinates. The default for <code>vec_fun()</code> is to assume the inputs are ordered
-and proceed as usual; this is different than the default for <code><a href='https://rdrr.io/r/stats/splinefun.html'>splinefun()</a></code>.</p>
+<p>The <code>ties</code> argument determines behavior when two values have the same
+(<code>i</code>, <code>x</code>) coordinates. The default for <code>vec_fun()</code> is to assume the inputs
+are ordered and proceed as usual; this is different than the default for
+<code><a href='https://rdrr.io/r/stats/splinefun.html'>splinefun()</a></code>.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

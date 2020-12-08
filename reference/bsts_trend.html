@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • covidModel</title>
+<title>Bayesian Structural Time Series: Trend Components — bsts_trend • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,15 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Bayesian Structural Time Series: Trend Components — bsts_trend" />
+<meta property="og:description" content="bsts_trend() is a generic that wraps the various trend models in the
+bsts package into a user-friendly interface. Model-specific arguments are
+passed via ...; see the four methods (
+&quot;semilocal&quot;,
+&quot;local&quot;,
+&quot;robust&quot;, and
+&quot;level&quot;
+) for details of those arguments." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -66,7 +74,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -108,99 +116,70 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Bayesian Structural Time Series: Trend Components</h1>
+    
+    <div class="hidden name"><code>bsts_trend.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p><code>bsts_trend()</code> is a generic that wraps the various trend models in the
+bsts package into a user-friendly interface. Model-specific arguments are
+passed via <code>...</code>; see the four methods (
+<code>"semilocal"</code>,
+<code>"local"</code>,
+<code>"robust"</code>, and
+<code>"level"</code>
+) for details of those arguments.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>bsts_trend</span><span class='op'>(</span>
+  state <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  .data <span class='op'>=</span> <span class='va'>state</span><span class='op'>[[</span><span class='st'>".data"</span><span class='op'>]</span><span class='op'>]</span>,
+  method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"semilocal"</span>, <span class='st'>"local"</span>, <span class='st'>"robust"</span>, <span class='st'>"level"</span><span class='op'>)</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="bsts_fit.html">bsts_fit()</a></code> </p>
-        </td>
-        <td><p>Bayesian Structural Time Series: Fit Model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="bsts_season.html">bsts_season()</a></code> </p>
-        </td>
-        <td><p>Bayesian Structural Time Series: Seasonal Components</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="bsts_trend.html">bsts_trend()</a></code> </p>
-        </td>
-        <td><p>Bayesian Structural Time Series: Trend Components</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="bsts_trend.level.html">bsts_trend(<i>&lt;level&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Local Level Trend State Component</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="bsts_trend.local.html">bsts_trend(<i>&lt;local&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Local Linear Trend State Component</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="bsts_trend.robust.html">bsts_trend(<i>&lt;robust&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Robust Local Linear Trend State Component</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="bsts_trend.semilocal.html">bsts_trend(<i>&lt;semilocal&gt;</i>)</a></code> </p>
-        </td>
-        <td><p>Semilocal Linear Trend State Component</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="functionalize.html">functionalize()</a></code> </p>
-        </td>
-        <td><p>Integrate a Vector w.r.t. Time
-<code>integrate_dt()</code></p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="interpolate.html">interpolate()</a></code> </p>
-        </td>
-        <td><p>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code>functionalize()</code>.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="interpolate_vec.html">interpolate_vec()</a></code> </p>
-        </td>
-        <td><p>Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>state</th>
+      <td><p>A list of state components you wish to add to. If omitted,
+an empty list will be assumed. This argument is named <code>state.specification</code>
+in bsts.</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>Which trend model to use. Choose from <code>"semilocal"</code>
+(the default), <code>"local"</code>, <code>"robust"</code>, or <code>"level"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments to pass to methods; see the methods above
+for details</p></td>
+    </tr>
+    <tr>
+      <th>y</th>
+      <td><p>The time series to be modeled, as a numeric vector. Unlike bsts,
+this is piped forward as part of the state if defined, so you only need
+to specify it once (at the beginning of the model-building pipeline).</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A list with the elements necessary to specify the chosen trend model</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/bsts/man/bsts.html'>bsts()</a></code>,
+<code>[bsts:AddSemilocalLinearTrend]{AddSemilocalLinearTrend()}</code>,
+<code>[bsts:AddLocalLinearTrend]{AddLocalLinearTrend()}</code>,
+<code>[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}</code>,
+<code>[bsts:AddLocalLevel]{AddLocalLevel()}</code></p></div>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>
