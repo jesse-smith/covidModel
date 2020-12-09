@@ -113,10 +113,12 @@ estimate_delay <- function(
     .unlist = TRUE
   )
 
-  removing_min_dt <- paste0("Removing collection dates earlier than ", min_dt)
+  removing_min_dt <- paste0(
+    "`estimate_delay`: Removing collection dates earlier than ", min_dt
+  )
 
   filtering_illogical_or_missing <- paste0(
-    "Filtering logically inconsistent or missing observations"
+    "`estimate_delay`: Removing logically inconsistent or missing observations"
   )
 
   data %T>%
