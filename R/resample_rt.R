@@ -1,12 +1,15 @@
-resample_rt <- function(x, period) {
+# Need to split `prep_linelist()` after de-anomalizing to allow repeated application
+# of the smoothing function
 
-  i <- vec_seq_along(x)
+resample_rt <- function(x, period= 30L) {
+
+  i <- vec_seq_along(.data)
 
   size <- vec_size(x)
+
   half_p <- as.integer(ceiling(period / 2L) - 1L)
 
   ref <- smooth_x(x, period)
-
 
   purrr::map(
     period:size,
