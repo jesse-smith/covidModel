@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Bayesian Structural Time Series: Seasonal Components — bsts_season • covidModel</title>
+<title>Method dispatch not working — bsts_season.harmonic • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,15 +46,8 @@
 
 
 
-<meta property="og:title" content="Bayesian Structural Time Series: Seasonal Components — bsts_season" />
-<meta property="og:description" content="bsts_season() is a generic that wraps the two seasonal models in the
-bsts package into a user-friendly interface. Model-specific arguments are
-passed via ...; see the two methods (
-&quot;regression&quot; and
-&quot;harmonic&quot;
-) for details of those arguments. bsts_seasonal() also uses the timetk
-package to make model specification easier or, if you prefer, automate it
-entirely based on tunable heuristics." />
+<meta property="og:title" content="Method dispatch not working — bsts_season.harmonic" />
+<meta property="og:description" content="Method dispatch not working" />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -118,67 +111,26 @@ entirely based on tunable heuristics." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Bayesian Structural Time Series: Seasonal Components</h1>
+    <h1>Method dispatch not working</h1>
     
-    <div class="hidden name"><code>bsts_season.Rd</code></div>
+    <div class="hidden name"><code>bsts_season.harmonic.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><code>bsts_season()</code> is a generic that wraps the two seasonal models in the
-bsts package into a user-friendly interface. Model-specific arguments are
-passed via <code>...</code>; see the two methods (
-<code>"regression"</code> and
-<code>"harmonic"</code>
-) for details of those arguments. <code>bsts_seasonal()</code> also uses the timetk
-package to make model specification easier or, if you prefer, automate it
-entirely based on tunable heuristics.</p>
+    <p>Method dispatch not working</p>
     </div>
 
-    <pre class="usage"><span class='fu'>bsts_season</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>bsts_season.harmonic</span><span class='op'>(</span>
   state <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
   .data <span class='op'>=</span> <span class='va'>state</span><span class='op'>[[</span><span class='st'>".data"</span><span class='op'>]</span><span class='op'>]</span>,
+  method <span class='op'>=</span> <span class='st'>"harmonic"</span>,
   period <span class='op'>=</span> <span class='cn'>NULL</span>,
   season <span class='op'>=</span> <span class='cn'>NULL</span>,
-  <span class='va'>...</span>
+  sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.state.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sdy <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>state</th>
-      <td><p>A list of state components you wish to add to. If omitted,
-an empty list will be assumed. This argument is named <code>state.specification</code>
-in bsts.</p></td>
-    </tr>
-    <tr>
-      <th>period</th>
-      <td><p>The length of a full seasonal cycle. Either a time-based definition (e.g. "1 week")
-or the number of observations in a season (e.g. 7). Supplying a
-number makes this equivalent to <code>nseasons</code> in
-<code><a href='https://rdrr.io/pkg/bsts/man/add.seasonal.html'>AddSeasonal()</a></code> or <code>period</code> in
-<code><a href='https://rdrr.io/pkg/bsts/man/add.trig.html'>AddTrig()</a></code> (for methods <code>regression</code> or
-<code>harmonic</code>, respectively).</p></td>
-    </tr>
-    <tr>
-      <th>season</th>
-      <td><p>The length of a season within a period (e.g. "1 month" for a 1 year period
-with monthly seasonality); the default is one season per
-observation within a period. Can be supplied in the same
-way as <code>period</code>. This parameter is ignored for
-<code>method = "harmonic"</code>.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Additional arguments to pass to methods; see the methods above
-for details</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p>Which seasonal model to use. Choose from <code>"regression"</code> or
-<code>"harmonic"</code>.</p></td>
-    </tr>
-    </table>
 
 
   </div>
