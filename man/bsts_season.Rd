@@ -7,9 +7,8 @@
 bsts_season(
   state = list(),
   .data = state[[".data"]],
-  method = c("regression", "harmonic"),
   period = NULL,
-  seasons = NULL,
+  season = NULL,
   ...
 )
 }
@@ -18,9 +17,6 @@ bsts_season(
 an empty list will be assumed. This argument is named \code{state.specification}
 in bsts.}
 
-\item{method}{Which seasonal model to use. Choose from \code{"regression"} or
-\code{"harmonic"}.}
-
 \item{period}{The length of a full seasonal cycle. Either a time-based definition (e.g. "1 week")
 or the number of observations in a season (e.g. 7). Supplying a
 number makes this equivalent to \code{nseasons} in
@@ -28,14 +24,17 @@ number makes this equivalent to \code{nseasons} in
 \code{\link[bsts:AddTrig]{AddTrig()}} (for methods \code{regression} or
 \code{harmonic}, respectively).}
 
-\item{...}{Additional arguments to pass to methods; see the methods above
-for details}
-
 \item{season}{The length of a season within a period (e.g. "1 month" for a 1 year period
 with monthly seasonality); the default is one season per
 observation within a period. Can be supplied in the same
 way as \code{period}. This parameter is ignored for
 \code{method = "harmonic"}.}
+
+\item{...}{Additional arguments to pass to methods; see the methods above
+for details}
+
+\item{method}{Which seasonal model to use. Choose from \code{"regression"} or
+\code{"harmonic"}.}
 }
 \description{
 \code{bsts_season()} is a generic that wraps the two seasonal models in the
