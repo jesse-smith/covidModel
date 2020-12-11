@@ -4,7 +4,7 @@
 \alias{bsts_fit}
 \title{Bayesian Structural Time Series: Fit Model}
 \usage{
-bsts_fit(state, .data = state[[".data"]], iterations = 11000, ...)
+bsts_fit(state, .data = state[[".data"]], iterations = 10000, ...)
 }
 \arguments{
 \item{.data}{An optional data frame, list or environment (or object
