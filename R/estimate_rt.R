@@ -2,7 +2,7 @@ estimate_rt <- function(
   .data,
   .col = "smoothed_cleaned",
   .t = ".t",
-  period = 7L,
+  period = 1L,
   serial_interval_mean = 6,
   serial_interval_sd = 4.17
 ) {
@@ -23,7 +23,6 @@ estimate_rt <- function(
   ) %>%
     tidy_rt()
 }
-
 
 prep_data_rt <- function(
   .data,
@@ -69,11 +68,13 @@ tidy_rt <- function(rt) {
     dplyr::mutate(
       .t = vec_slice(rt[["dates"]], i = t_end)
     ) %>%
-    dplyr::select(
+    dplyr::transmute(
       .t,
       .pred = `Median(R)`,
       .pred_lower = `Quantile.0.025(R)`,
       .pred_upper = `Quantile.0.975(R)`,
+      .mean = `Mean(R)`,
+      .cv = `Std(R)` / `Mean(R)`
     )
 }
 
@@ -149,28 +150,133 @@ prep_linelist <- function(
     smooth_linelist("observed_cleaned", trend = trend, period = period) %>%
     dplyr::transmute(
       .t = .data[[collect_nm]],
+      remainder_cleaned = .data[["observed_cleaned"]]  %>%
+        subtract(.data[["trend"]] + .data[["season"]]) %>%
+        expm1(),
       observed = .data[["observed"]] %>% expm1() %>% pmax(0),
       observed_cleaned = .data[["observed_cleaned"]] %>% expm1() %>% pmax(0),
       smoothed_cleaned = .data[["smoothed"]] %>% expm1() %>% pmax(0)
+    ) %>%
+    dplyr::relocate(
+      .data[["remainder_cleaned"]],
+      .after = .data[["smoothed_cleaned"]]
     )
 }
 
+filter_reg <- function(x, degree = 2L) {
+
+  size <- vec_size(x)
+
+  i <- vec_seq_along(x)
+
+  degree <- min(size - 1L, degree)
+
+  if (size < 7L | degree <= 0L) {
+    weighted.mean(x, w = i, na.rm = TRUE)
+  } else {
+    lm(
+      x ~ stats::poly(i, degree = degree),
+      weights = i,
+      na.action = na.exclude
+    ) %>%
+      predict() %>%
+      extract2(size)
+  }
+}
+
 smooth_linelist <- function(.data, .col, trend = NULL, period = NULL) {
+
+  if (is.null(period)) {
+    period <- "auto"
+  }
+
+  if (is.null(trend)) {
+    trend <- "auto"
+  }
+
+  .t <- timetk::tk_get_timeseries_variables(.data)[[1]]
+
+  .period <- timetk::tk_get_frequency(
+    .data[[.t]],
+    period = period,
+    message = FALSE
+  )
+
+  .trend <- timetk::tk_get_trend(
+    .data[[.t]],
+    period = trend,
+    message = FALSE
+  )
+
+  filterrr <- timetk::slidify(
+    filter_reg,
+    .period = .trend,
+    .align = "right",
+    .partial = TRUE
+  )
+
   .data %>%
     decompose_time_stl(
       .col = .col,
-      trend = if (is.null(trend)) "auto" else trend,
-      period = if (is.null(period)) "auto" else period
+      trend = .trend,
+      period = .period
+    ) %>%
+    dplyr::pull(.data[["trend"]]) ->
+  smth
+
+  dplyr::mutate(.data, smoothed = smth)
+
+}
+
+gamma_shape <- function(mean, sd) {
+  (mean / sd)^2L
+}
+
+gamma_rate <- function(mean, sd) {
+  mean / sd^2L
+}
+
+gamma_mean <- function(shape, rate) {
+  shape / rate
+}
+
+gamma_sd <- function(shape, rate) {
+  sqrt(shape) / rate
+}
+
+filter_rt <- function(.data, trend = NULL, degree = 2L) {
+
+  if (is.null(trend)) {
+    trend <- "auto"
+  }
+
+  .trend <- timetk::tk_get_trend(
+    .data[[".t"]],
+    period = trend,
+    message = FALSE
+  )
+
+  filterrr <- timetk::slidify(
+    ~ filter_reg(.x, degree = degree),
+    .period = .trend,
+    .align = "right",
+    .partial = TRUE
+  )
+
+  .data %>%
+    dplyr::mutate(
+      .cv = filterrr(.data[[".cv"]]),
+      .mean = filterrr(.data[[".mean"]]),
+      .sd = .data[[".cv"]] * .data[[".mean"]],
+      .shape = gamma_shape(.data[[".mean"]], .data[[".sd"]]),
+      .rate = gamma_rate(.data[[".mean"]], .data[[".sd"]])
     ) %>%
     dplyr::transmute(
-      smoothed = smoots::tsmooth(
-        .data[["trend"]] + .data[["remainder"]],
-        bStart = 0.1
-      )$ye
-    ) %>%
-    dplyr::pull(.data[["smoothed"]]) ->
-  smoothed
-
-  dplyr::mutate(.data, smoothed = smoothed)
-
+      .t = .data[[".t"]],
+      .pred = qgamma(0.5, shape = .data[[".shape"]], rate = .data[[".rate"]]),
+      .pred_lower = qgamma(0.025, shape = .shape, rate = .rate),
+      .pred_upper = qgamma(0.975, shape = .shape, rate = .rate),
+      .mean = .data[[".mean"]],
+      .cv = .data[[".cv"]]
+    )
 }

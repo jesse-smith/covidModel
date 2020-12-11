@@ -1,14 +1,16 @@
 plot_rt <- function(
   .data,
-  lag = 0L,
   start = "2020-04-01",
-  end = Sys.Date()
+  end = Sys.Date(),
+  raw = NULL
 ) {
 
   .data %>%
     ggplot_rt() %>%
     add_rt_level_reference() %>%
-    add_rt_event_reference() %>%
+    add_covid_events(lab_y = 2) %>%
+    {if (!is.null(raw)) add_rt_raw(., .data_raw = raw) else .} %>%
+    add_rt_interval() %>%
     add_rt_curve() %>%
     add_rt_recent() %>%
     add_rt_axis_labels() %>%
@@ -39,9 +41,12 @@ ggplot_rt <- function(
     ~ c(min = 0, max = 1 + max_span)
   )
 
-  ggplot2::ggplot(.data, ggplot2::aes(x = lubridate::as_date(.data[[".t"]]))) +
-    ggthemes::theme_fivethirtyeight(base_size = 14L) +
-    ggplot2::coord_cartesian(xlim = xlim, ylim = ylim)
+  ggplot2::ggplot(
+    .data,
+    ggplot2::aes(x = lubridate::as_date(.data[[".t"]]))
+  ) %>%
+    set_covid_theme() %>%
+    set_axis_limits(xlim = xlim, ylim = ylim)
 }
 
 add_rt_level_reference <- function(gg_obj) {
@@ -95,8 +100,7 @@ add_rt_level_reference <- function(gg_obj) {
     )
 }
 
-add_rt_curve <- function(gg_obj) {
-
+add_rt_interval <- function(gg_obj) {
   gg_obj +
     # Add 95% CI
     ggplot2::geom_ribbon(
@@ -107,7 +111,12 @@ add_rt_curve <- function(gg_obj) {
       fill = "grey30",
       linetype = "blank",
       alpha = 1/3
-    ) +
+    )
+}
+
+add_rt_curve <- function(gg_obj) {
+
+  gg_obj +
     # Add line
     ggplot2::geom_line(
       ggplot2::aes(y = .data[[".pred"]]),
@@ -115,79 +124,14 @@ add_rt_curve <- function(gg_obj) {
       alpha = 2/3,
       size = 1,
       show.legend = FALSE
-    ) +
+    )
     # Add points
-    ggplot2::geom_point(
-      ggplot2::aes(y = .data[[".pred"]]),
-      color = "grey30",
-      size = 1,
-      show.legend = FALSE
-    )
-}
-
-add_event <- function(
-  gg_obj,
-  date,
-  lab,
-  hjust = 0,
-  vjust = 0,
-  angle = -90,
-  face = c("bold", "italic", "bold.italic", "plain"),
-  line = c("dashed", "solid", "blank", "dotted")
-) {
-
-  date <- lubridate::as_date(date)
-
-  face <- rlang::arg_match(face)[[1]]
-
-  line <- rlang::arg_match(line)[[1]]
-
-  gg_obj +
-    ggplot2::geom_vline(
-      xintercept = date,
-      linetype = line,
-      color = "grey30",
-      size = 0.5
-    ) +
-    ggplot2::annotate(
-      "text",
-      x = if (hjust <= 0.5) date + 1 else date - 1,
-      y = 2,
-      label = lab,
-      hjust = hjust,
-      vjust = vjust,
-      angle = angle,
-      fontface = face,
-      color = "grey30"
-    )
-}
-
-add_today <- function(gg_obj) {
-  gg_obj %>%
-    add_event(
-      lubridate::today(),
-      "Today",
-      angle = 0,
-      vjust = 1,
-      face = "plain",
-      line = "dotted"
-    )
-}
-
-add_rt_event_reference <- function(gg_obj) {
-  gg_obj %>%
-    add_today() %>%
-    add_event("2020-03-24", "Safer-at-Home") %>%
-    add_event("2020-05-04", "Phase 1 Reopen") %>%
-    add_event("2020-05-18", "Phase 2 Reopen") %>%
-    add_event("2020-07-08", "Bars Close\nMask Directive", vjust = 0.6) %>%
-    add_event("2020-09-22", "Bars Reopen") %>%
-    add_event("2020-09-29", "End State Restrictions") %>%
-    add_event(
-      "2020-11-23",
-      "Emphasize Masking\nReduce Dining Hours & Capacity",
-      vjust = 0.6
-    )
+    # ggplot2::geom_point(
+    #   ggplot2::aes(y = .data[[".pred"]]),
+    #   color = "grey30",
+    #   size = 1,
+    #   show.legend = FALSE
+    # )
 }
 
 add_rt_recent <- function(gg_obj) {
@@ -195,17 +139,16 @@ add_rt_recent <- function(gg_obj) {
   rt_recent <- gg_obj[["data"]] %>%
     dplyr::filter(.data[[".t"]] == max(.data[[".t"]], na.rm = TRUE))
 
-  color <- purrr::when(
-    rt_recent[[".pred"]],
-    . < 0.9 ~ "#00d474",
-    . < 1.1 ~ "#ffc900",
-    . < 1.4 ~ "#ff9600",
-    ~ "#FF0034"
+  color <- dplyr::case_when(
+    rt_recent[[".pred"]] < 0.9 ~ "#00d474",
+    rt_recent[[".pred"]] < 1.1 ~ "#ffc900",
+    rt_recent[[".pred"]] < 1.4 ~ "#ff9600",
+    rt_recent[[".pred"]] >= 1.4 ~ "#FF0034"
   )
 
   fill <- purrr::when(
     color,
-    color == "#ffc900" ~ "grey30",
+    . == "#ffc900" ~ "grey30",
     ~ "#f0f0f0"
   )
 
@@ -260,44 +203,43 @@ add_rt_recent <- function(gg_obj) {
 }
 
 add_rt_axis_labels <- function(gg_obj) {
-  gg_obj +
-    ggplot2::xlab("Date") +
-    ggplot2::ylab("Rt") +
-    ggplot2::theme(axis.title = ggplot2::element_text())
+  add_axis_labels(gg_obj, xlab = "Date", ylab = "Rt")
 }
 
 add_rt_title_caption <- function(gg_obj) {
-  gg_obj +
-    ggplot2::labs(
-      title = "Effective Reproduction Number (Rt)",
-      subtitle = "Estimated from confirmed cases by specimen collection date",
-      caption = "Source: Joint Task Force ESF-8 Data Subcommittee"
-    ) +
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(face = "bold", size = 18, hjust = 0.5),
-      plot.subtitle = ggplot2::element_text(size = 16, hjust = 0.5),
-      plot.caption = ggplot2::element_text(
-        hjust = 0.5,
-        size = 12,
-        face = "italic"
-      )
-    )
+  add_title_caption(
+    gg_obj,
+    title = "Effective Reproduction Number (Rt)",
+    subtitle = "Estimated from confirmed cases by specimen collection date",
+    caption = "Source: Joint Task Force ESF-8 Data Subcommittee"
+  )
 }
 
 add_rt_scale <- function(gg_obj) {
-  gg_obj +
-    ggplot2::scale_x_date(date_breaks = "1 month", date_labels = "%B") +
+  add_scale_month(gg_obj) +
     ggplot2::scale_y_continuous(breaks = c(0, 0.5, 1, 1.5, 2))
 }
 
-save_plot <- function(gg_obj = ggplot2::last_plot(), path, hd_pct = 1) {
+add_rt_raw <- function(
+  gg_obj,
+  .data_raw,
+  lag,
+  alpha = 0.1
+) {
 
-  coviData:::path_create(path)
-
-  ggplot2::ggsave(
-    filename = coviData:::path_create(path),
-    plot = gg_obj,
-    width = 16 * hd_pct,
-    height = 9 * hd_pct
+  raw <- dplyr::semi_join(
+    .data_raw,
+    gg_obj[["data"]],
+    by = ".t"
   )
+
+  gg_obj +
+    # Add points
+    ggplot2::geom_point(
+      ggplot2::aes(y = raw[[".pred"]]),
+      color = "grey30",
+      alpha = alpha,
+      size = 1,
+      show.legend = FALSE
+    )
 }
