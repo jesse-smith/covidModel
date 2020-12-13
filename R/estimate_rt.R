@@ -1,8 +1,37 @@
+#' Simple Bayesian Estimates of the Time-Varying Reproduction Number
+#'
+#' `estimate_rt()` uses the methodology of Cori et al 2013 to estimate the time-
+#' varying reproduction number. It calls
+#' \code{\link[EpiEstim:estimate_R]{estimate_R(method = "parametric_si")}} under
+#' the hood. It purposefully does not support aggregating counts over multiple
+#' time periods due to poor coverage of the resulting credible intervals, as
+#' well as shifting of the results due to lagging of the results. Use
+#' `smooth_for_rt()` to pre-smooth the data instead.
+#'
+#' @param .data A data frame containing the incidence curve and dates
+#'
+#' @param incid The quoted name of a numeric column containing the incidence
+#'   curve
+#'
+#' @param t The quoted name of a date column corresponding to the observations
+#'   in `incid`
+#'
+#' @param serial_interval_mean The average number of days between infection of a
+#'   primary case and a secondary case
+#'
+#' @param serial_interval_sd The standard deviation of the number of days
+#'   between infection of a primary case and a secondary case
+#'
+#' @return A `tibble` with columns `.t`, `.pred` (the median), `.pred_lower`
+#'   (the lower bound of the 95% credible interval), `.pred_upper`
+#'   (the upper bound of the 95% credible interval), `.mean` (the average), and
+#'   `.cv` (the coefficient of variation)
+#'
+#' @export
 estimate_rt <- function(
   .data,
-  .col = "smoothed_cleaned",
-  .t = ".t",
-  period = 1L,
+  incid = "smoothed_cleaned",
+  t = ".t",
   serial_interval_mean = 6,
   serial_interval_sd = 4.17
 ) {
@@ -10,13 +39,12 @@ estimate_rt <- function(
   EpiEstim::estimate_R(
     incid = prep_data_rt(
       .data,
-      .col = .col,
-      .t = .t
+      .incid = incid,
+      .t = t
     ),
     method = "parametric_si",
     config = prep_config_rt(
       .data,
-      period = period,
       serial_interval_mean = serial_interval_mean,
       serial_interval_sd = serial_interval_sd
     )
@@ -24,16 +52,30 @@ estimate_rt <- function(
     tidy_rt()
 }
 
+#' Prepare Data for Rt Calculation
+#'
+#' `prep_data_rt()` is an internal function used to prepare the `incid` argument
+#' for \code{\link[EpiEstim:estimate_R]{estimate_R()}}.
+#'
+#' @inheritParams estimate_rt
+#'
+#' @param incid The quoted name of a numeric column containing the incidence
+#'   curve
+#'
+#' @param t The quoted name of a date column corresponding to the observations
+#'   in `incid`
+#'
+#' @keywords internal
 prep_data_rt <- function(
   .data,
-  .col = NULL,
+  .incid = NULL,
   .t = NULL
 ) {
   if (is.data.frame(.data)) {
     dplyr::select(
       .data,
       dates = .t,
-      I = .col
+      I = .incid
     )
   } else {
     .data %>%
@@ -44,7 +86,7 @@ prep_data_rt <- function(
 
 prep_config_rt <- function(
   .data,
-  period = 7L,
+  period = 1L,
   serial_interval_mean = 6,
   serial_interval_sd = 4.17
 ) {
@@ -62,7 +104,23 @@ prep_config_rt <- function(
   )
 }
 
+#' Tidy an `estimate_R` Object
+#'
+#' `tidy_rt()` converts an `estimate_R` object from the EpiEstim package to the
+#' `tibble` subclass `covidmodel_rt` with a `serial_interval` attribute. Works
+#' when `estimate_R()` is called with `method = "parametric_si"`.
+#'
+#' @param rt An `estimate_R` object
+#'
+#' @return A `covidmodel_rt` object
+#'
+#' @export
 tidy_rt <- function(rt) {
+
+  si <- rt[["SI.Moments"]] %>%
+    as.double() %>%
+    set_names(colnames(rt[["SI.Moments"]]))
+
   rt[["R"]] %>%
     dplyr::as_tibble() %>%
     dplyr::mutate(
@@ -70,14 +128,22 @@ tidy_rt <- function(rt) {
     ) %>%
     dplyr::transmute(
       .t,
+      .incid = rt[["I"]] %>% vec_slice(i = 1:(vec_size(.) - 1L)),
       .pred = `Median(R)`,
       .pred_lower = `Quantile.0.025(R)`,
       .pred_upper = `Quantile.0.975(R)`,
       .mean = `Mean(R)`,
       .cv = `Std(R)` / `Mean(R)`
-    )
+    ) %>%
+    covidmodel_rt(serial_interval = si)
 }
 
+#' Prepare a Linelist for Rt Estimation
+#'
+#' `prep_linelist()` converts a linelist to an incidence curve with anomalies
+#' and seasonality removed. It also filters out reporting errors and truncates
+#' the data at the last fully observed incidence date (as defined by
+#' `pct_reported`).
 prep_linelist <- function(
   .data,
   .collection_date = collection_date,
@@ -147,136 +213,69 @@ prep_linelist <- function(
       cutoff = cutoff,
       plot = plot_anomalies
     ) %>%
-    smooth_linelist("observed_cleaned", trend = trend, period = period) %>%
-    dplyr::transmute(
-      .t = .data[[collect_nm]],
-      remainder_cleaned = .data[["observed_cleaned"]]  %>%
-        subtract(.data[["trend"]] + .data[["season"]]) %>%
-        expm1(),
-      observed = .data[["observed"]] %>% expm1() %>% pmax(0),
-      observed_cleaned = .data[["observed_cleaned"]] %>% expm1() %>% pmax(0),
-      smoothed_cleaned = .data[["smoothed"]] %>% expm1() %>% pmax(0)
-    ) %>%
-    dplyr::relocate(
-      .data[["remainder_cleaned"]],
-      .after = .data[["smoothed_cleaned"]]
+    anomalize::time_decompose(
+      target = "observed_cleaned",
+      method = "stl",
+      trend = trend,
+      frequency = period,
+      message = FALSE
     )
 }
 
-filter_reg <- function(x, degree = 2L) {
+expm1_decomposed <- function(.data) {
 
-  size <- vec_size(x)
+  .observed = .data[["observed"]]
+  .season = .data[["season"]]
+  .trend = .data[["trend"]]
+  .remainder = .data[["remainder"]]
 
-  i <- vec_seq_along(x)
+  dplyr::mutate(
+    .data,
+    observed = expm1(.data[["observed"]]),
+    season_trend = expm1(.observed - .remainder),
+    season_remainder = expm1(.observed - .trend),
+    trend_remainder = expm1(.observed - .season),
 
-  degree <- min(size - 1L, degree)
-
-  if (size < 7L | degree <= 0L) {
-    weighted.mean(x, w = i, na.rm = TRUE)
-  } else {
-    lm(
-      x ~ stats::poly(i, degree = degree),
-      weights = i,
-      na.action = na.exclude
-    ) %>%
-      predict() %>%
-      extract2(size)
-  }
+  )
 }
 
-smooth_linelist <- function(.data, .col, trend = NULL, period = NULL) {
+#' Convert Between Mean/SD and Shape/Rate of Gamma Distribution
+#'
+#' These functions return the mean, standard deviation, shape, or rate of a
+#' gamma distribution given the other pair of parameters.
+#'
+#'
+#' @param mean A vector of one or more means
+#'
+#' @param sd A vector of one or more standard deviations
+#'
+#' @param shape A vector of one or more shape parameters
+#'
+#' @param rate A vector of one or more rate parameters
+#'
+#' @name gamma-distr-conversion
+#'
+#' @aliases gamma_shape gamma_rate gamma_mean gamma_sd
+#'
+#' @keywords internal
+NULL
 
-  if (is.null(period)) {
-    period <- "auto"
-  }
-
-  if (is.null(trend)) {
-    trend <- "auto"
-  }
-
-  .t <- timetk::tk_get_timeseries_variables(.data)[[1]]
-
-  .period <- timetk::tk_get_frequency(
-    .data[[.t]],
-    period = period,
-    message = FALSE
-  )
-
-  .trend <- timetk::tk_get_trend(
-    .data[[.t]],
-    period = trend,
-    message = FALSE
-  )
-
-  filterrr <- timetk::slidify(
-    filter_reg,
-    .period = .trend,
-    .align = "right",
-    .partial = TRUE
-  )
-
-  .data %>%
-    decompose_time_stl(
-      .col = .col,
-      trend = .trend,
-      period = .period
-    ) %>%
-    dplyr::pull(.data[["trend"]]) ->
-  smth
-
-  dplyr::mutate(.data, smoothed = smth)
-
-}
-
+#' @rdname gamma-distr_conversion
 gamma_shape <- function(mean, sd) {
   (mean / sd)^2L
 }
 
+#' @rdname gamma-distr_conversion
 gamma_rate <- function(mean, sd) {
   mean / sd^2L
 }
 
+#' @rdname gamma-distr_conversion
 gamma_mean <- function(shape, rate) {
   shape / rate
 }
 
+#' @rdname gamma-distr_conversion
 gamma_sd <- function(shape, rate) {
   sqrt(shape) / rate
-}
-
-filter_rt <- function(.data, trend = NULL, degree = 2L) {
-
-  if (is.null(trend)) {
-    trend <- "auto"
-  }
-
-  .trend <- timetk::tk_get_trend(
-    .data[[".t"]],
-    period = trend,
-    message = FALSE
-  )
-
-  filterrr <- timetk::slidify(
-    ~ filter_reg(.x, degree = degree),
-    .period = .trend,
-    .align = "right",
-    .partial = TRUE
-  )
-
-  .data %>%
-    dplyr::mutate(
-      .cv = filterrr(.data[[".cv"]]),
-      .mean = filterrr(.data[[".mean"]]),
-      .sd = .data[[".cv"]] * .data[[".mean"]],
-      .shape = gamma_shape(.data[[".mean"]], .data[[".sd"]]),
-      .rate = gamma_rate(.data[[".mean"]], .data[[".sd"]])
-    ) %>%
-    dplyr::transmute(
-      .t = .data[[".t"]],
-      .pred = qgamma(0.5, shape = .data[[".shape"]], rate = .data[[".rate"]]),
-      .pred_lower = qgamma(0.025, shape = .shape, rate = .rate),
-      .pred_upper = qgamma(0.975, shape = .shape, rate = .rate),
-      .mean = .data[[".mean"]],
-      .cv = .data[[".cv"]]
-    )
 }
