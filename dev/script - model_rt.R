@@ -12,7 +12,7 @@ data <- dplyr::semi_join(
 last_complete <- estimate_delay(data)
 
 data %>%
-  prep_linelist(trend = 30L) %>%
+  prep_linelist(trend = 30L)
   estimate_rt() ->
 rt
 

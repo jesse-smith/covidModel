@@ -9,14 +9,11 @@ deanomalize <- function(
   ...
 ) {
 
-  .data %>%
-  dplyr::select(.col) %>%
-    colnames() ->
-  .col
+  col_nm <- coviData::select_colnames(.data, .col)
 
   anomalize::time_decompose(
     .data,
-    target = .col,
+    target = col_nm,
     method = "stl",
     frequency = if (is.null(period)) "auto" else period,
     trend = if (is.null(trend)) "auto" else trend,

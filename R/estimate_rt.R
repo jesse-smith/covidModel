@@ -157,15 +157,9 @@ prep_linelist <- function(
   plot_anomalies = FALSE
 ) {
 
-  .data %>%
-    dplyr::select({{ .collection_date }}) %>%
-    colnames() ->
-  collect_nm
+  collect_nm <- coviData::select_colnames(.data, {{ .collection_date }})
 
-  .data %>%
-    dplyr::select({{ .report_date }}) %>%
-    colnames() ->
-  report_nm
+  report_nm <- coviData::select_colnames(.data, {{ .report_date }})
 
   end_date <- estimate_delay(
     .data,
@@ -203,7 +197,7 @@ prep_linelist <- function(
       !is.na(.data[[collect_nm]]),
       .data[[collect_nm]] <= .data[[report_nm]]
     ) %T>%
-    {rlang::inform("")} %>%
+    {rlang::inform("Correcting anomalies...")} %>%
     dplyr::count(.data[[collect_nm]]) %>%
     dplyr::mutate(n = log1p(.data[["n"]])) %>%
     deanomalize(
@@ -216,15 +210,15 @@ prep_linelist <- function(
     anomalize::time_decompose(
       target = "observed_cleaned",
       method = "stl",
-      trend = trend,
-      frequency = period,
+      trend = if (is.null(trend)) "auto" else trend,
+      frequency = if (is.null(period)) "auto" else period,
       message = FALSE
-    )
+    ) %>%
+    expm1_decomposed()
 }
 
 expm1_decomposed <- function(.data) {
 
-  .observed = .data[["observed"]]
   .season = .data[["season"]]
   .trend = .data[["trend"]]
   .remainder = .data[["remainder"]]
@@ -232,10 +226,9 @@ expm1_decomposed <- function(.data) {
   dplyr::mutate(
     .data,
     observed = expm1(.data[["observed"]]),
-    season_trend = expm1(.observed - .remainder),
-    season_remainder = expm1(.observed - .trend),
-    trend_remainder = expm1(.observed - .season),
-
+    trend = expm1(.trend),
+    season = expm1(.trend + .season) - .data[["trend"]],
+    remainder = .data[["observed"]] - .data[["trend"]] - .data[["season"]]
   )
 }
 
