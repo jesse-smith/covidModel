@@ -6,9 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished. — interpolate • covidModel</title>
+<title>Convert Decompositions Performed Under a log1p() Transform to Linear Scale — expm1_decomposed • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -48,12 +46,12 @@ It powers functionalize(). This documentation is unfinished. — interpolate •
 
 
 
-<meta property="og:title" content="Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished. — interpolate" />
-<meta property="og:description" content="Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished." />
+<meta property="og:title" content="Convert Decompositions Performed Under a log1p() Transform to Linear Scale — expm1_decomposed" />
+<meta property="og:description" content="expm1_decomposed() converts the output of
+time_decompose() back to the linear
+scale when the input to time_decompose() is on the log scale. This amounts
+to selective sequential application of expm1() to
+the component columns." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -117,46 +115,66 @@ It powers functionalize(). This documentation is unfinished." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code>functionalize()</code>. This documentation is unfinished.</h1>
+    <h1>Convert Decompositions Performed Under a <code>log1p()</code> Transform to Linear Scale</h1>
     
-    <div class="hidden name"><code>interpolate.Rd</code></div>
+    <div class="hidden name"><code>expm1_decomposed.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code><a href='functionalize.html'>functionalize()</a></code>. This documentation is unfinished.</p>
+    <p><code>expm1_decomposed()</code> converts the output of
+<code><a href='https://rdrr.io/pkg/anomalize/man/time_decompose.html'>time_decompose()</a></code> back to the linear
+scale when the input to <code>time_decompose()</code> is on the log scale. This amounts
+to selective sequential application of <code><a href='https://rdrr.io/r/base/Log.html'>expm1()</a></code> to
+the component columns.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>interpolate</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>.x</span>, .t <span class='op'>=</span> <span class='cn'>NULL</span>, rtn_data <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>expm1_decomposed</span><span class='op'>(</span><span class='va'>.data</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>.data</th>
-      <td><p>An input dataset with a column to interpolate</p></td>
-    </tr>
-    <tr>
-      <th>.x</th>
-      <td><p>The column to interpolate</p></td>
-    </tr>
-    <tr>
-      <th>.t</th>
-      <td><p>An optional column specifying times associated with <code>.x</code></p></td>
-    </tr>
-    <tr>
-      <th>rtn_data</th>
-      <td><p>Whether to return the input data as an attribute; used
-internally, but not usually needed.</p></td>
+      <td><p>The output of <code>time_decompose()</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A function with interpolated input <code>.t</code> and output <code>.x</code></p>
+    <p>The input decomposition with <code><a href='https://rdrr.io/r/base/Log.html'>expm1()</a></code> applied appropriately</p>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Because log-scale additive decomposition is multiplicative decomposition on
+the linear scale, functions which automatically perform decomposition on the
+log scale yield unexpected output. To remedy this, an approximate conversion
+back to the linear scale can be performed. The steps are as follows (with all
+exponentiation follow by an "add-1" operation):</p>
+<ol>
+<li><p><strong>observed</strong>: Exponentiate the <code>observed</code> column</p></li>
+<li><p><strong>trend</strong>: Exponentiate the <code>trend</code> column</p></li>
+<li><p><strong>season</strong>: Exponentiate <code>trend + season</code> and subtract the
+exponentiated <code>trend</code></p></li>
+<li><p><strong>remainder</strong> Subtract the exponentiated <code>trend</code> and <code>season</code>
+from the exponentiated <code>observed</code> values (<code>observed - trend - season</code>)</p></li>
+</ol>
+
+<p>The underlying code is perhaps a simpler explanation than the above; consult
+it for further exposition.</p>
+<p>Exponentiating the <code>observed</code> values is a simple inverse transform; however,
+the component columns require some assumptions to convert back to a linear
+scale. This process uses the <code>trend</code> as a "base" and simply exponentiates it
+as in <code>observed</code>. This can then be used to derive the <code>season</code> component, and
+the <code>remainder</code> is whatever is left over. While this is not a theoretically
+valid process (there is none for this operation), it is consistent with
+treating the <code>trend</code> as a smoothed version of <code>observed</code>, which is usually
+done in practice. Once this assumption is made, the <code>season</code> transformation
+becomes valid. The <code>remainder</code> is then assumed to be the difference between
+the observed values (<code>observed</code>) expected values (<code>season + trend</code>), as
+usual.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/anomalize/man/time_decompose.html'>time_decompose()</a></code>,
+<code><a href='https://rdrr.io/r/base/Log.html'>expm1()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

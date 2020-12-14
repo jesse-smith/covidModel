@@ -6,9 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished. — interpolate • covidModel</title>
+<title>Tidy an estimate_R Object — tidy_rt • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -48,12 +46,10 @@ It powers functionalize(). This documentation is unfinished. — interpolate •
 
 
 
-<meta property="og:title" content="Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished. — interpolate" />
-<meta property="og:description" content="Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished." />
+<meta property="og:title" content="Tidy an estimate_R Object — tidy_rt" />
+<meta property="og:description" content="tidy_rt() converts an estimate_R object from the EpiEstim package to the
+tibble subclass covidmodel_rt with a serial_interval attribute. Works
+when estimate_R() is called with method = &quot;parametric_si&quot;." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -117,46 +113,31 @@ It powers functionalize(). This documentation is unfinished." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code>functionalize()</code>. This documentation is unfinished.</h1>
+    <h1>Tidy an <code>estimate_R</code> Object</h1>
     
-    <div class="hidden name"><code>interpolate.Rd</code></div>
+    <div class="hidden name"><code>tidy_rt.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code><a href='functionalize.html'>functionalize()</a></code>. This documentation is unfinished.</p>
+    <p><code>tidy_rt()</code> converts an <code>estimate_R</code> object from the EpiEstim package to the
+<code>tibble</code> subclass <code>covidmodel_rt</code> with a <code>serial_interval</code> attribute. Works
+when <code>estimate_R()</code> is called with <code>method = "parametric_si"</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>interpolate</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>.x</span>, .t <span class='op'>=</span> <span class='cn'>NULL</span>, rtn_data <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>tidy_rt</span><span class='op'>(</span><span class='va'>rt</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An input dataset with a column to interpolate</p></td>
-    </tr>
-    <tr>
-      <th>.x</th>
-      <td><p>The column to interpolate</p></td>
-    </tr>
-    <tr>
-      <th>.t</th>
-      <td><p>An optional column specifying times associated with <code>.x</code></p></td>
-    </tr>
-    <tr>
-      <th>rtn_data</th>
-      <td><p>Whether to return the input data as an attribute; used
-internally, but not usually needed.</p></td>
+      <th>rt</th>
+      <td><p>An <code>estimate_R</code> object</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A function with interpolated input <code>.t</code> and output <code>.x</code></p>
+    <p>A <code>covidmodel_rt</code> object</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

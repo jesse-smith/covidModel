@@ -6,9 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished. — interpolate • covidModel</title>
+<title>Convert Between Mean/SD and Shape/Rate of Gamma Distribution — gamma-distr-conversion • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -48,12 +46,9 @@ It powers functionalize(). This documentation is unfinished. — interpolate •
 
 
 
-<meta property="og:title" content="Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished. — interpolate" />
-<meta property="og:description" content="Interpolate a Continuous Function of Time
-interpolate() creates a function of time from a time-indexed input object.
-It powers functionalize(). This documentation is unfinished." />
+<meta property="og:title" content="Convert Between Mean/SD and Shape/Rate of Gamma Distribution — gamma-distr-conversion" />
+<meta property="og:description" content="These functions return the mean, standard deviation, shape, or rate of a
+gamma distribution given the other pair of parameters." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -117,46 +112,45 @@ It powers functionalize(). This documentation is unfinished." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code>functionalize()</code>. This documentation is unfinished.</h1>
+    <h1>Convert Between Mean/SD and Shape/Rate of Gamma Distribution</h1>
     
-    <div class="hidden name"><code>interpolate.Rd</code></div>
+    <div class="hidden name"><code>gamma-distr-conversion.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code><a href='functionalize.html'>functionalize()</a></code>. This documentation is unfinished.</p>
+    <p>These functions return the mean, standard deviation, shape, or rate of a
+gamma distribution given the other pair of parameters.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>interpolate</span><span class='op'>(</span><span class='va'>.data</span>, <span class='va'>.x</span>, .t <span class='op'>=</span> <span class='cn'>NULL</span>, rtn_data <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>gamma_shape</span><span class='op'>(</span><span class='va'>mean</span>, <span class='va'>sd</span><span class='op'>)</span>
+
+<span class='fu'>gamma_rate</span><span class='op'>(</span><span class='va'>mean</span>, <span class='va'>sd</span><span class='op'>)</span>
+
+<span class='fu'>gamma_mean</span><span class='op'>(</span><span class='va'>shape</span>, <span class='va'>rate</span><span class='op'>)</span>
+
+<span class='fu'>gamma_sd</span><span class='op'>(</span><span class='va'>shape</span>, <span class='va'>rate</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>.data</th>
-      <td><p>An input dataset with a column to interpolate</p></td>
+      <th>mean</th>
+      <td><p>A vector of one or more means</p></td>
     </tr>
     <tr>
-      <th>.x</th>
-      <td><p>The column to interpolate</p></td>
+      <th>sd</th>
+      <td><p>A vector of one or more standard deviations</p></td>
     </tr>
     <tr>
-      <th>.t</th>
-      <td><p>An optional column specifying times associated with <code>.x</code></p></td>
+      <th>shape</th>
+      <td><p>A vector of one or more shape parameters</p></td>
     </tr>
     <tr>
-      <th>rtn_data</th>
-      <td><p>Whether to return the input data as an attribute; used
-internally, but not usually needed.</p></td>
+      <th>rate</th>
+      <td><p>A vector of one or more rate parameters</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A function with interpolated input <code>.t</code> and output <code>.x</code></p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
