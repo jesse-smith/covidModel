@@ -26,8 +26,6 @@
 #'   observation within a period. Can be supplied in the same
 #'   way as `period`. This parameter is ignored for
 #'   `method = "harmonic"`.
-#'
-#' @export
 bsts_season <- function(
   state = list(),
   .data = state[[".data"]],
@@ -74,7 +72,7 @@ bsts_season_regression <- function(
     timetk::tk_index(.data),
     period = season
   )
-  
+
   bsts::AddSeasonal(
     state.specification = inset2(state, ".data", NULL),
     y = .data,

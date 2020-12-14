@@ -4,15 +4,25 @@
 \alias{interpolate}
 \title{Interpolate a Continuous Function of Time
 \code{interpolate()} creates a function of time from a time-indexed input object.
-It powers \code{functionalize()}.}
+It powers \code{functionalize()}. This documentation is unfinished.}
 \usage{
 interpolate(.data, .x, .t = NULL, rtn_data = FALSE)
 }
 \arguments{
-\item{.data}{A input dataset with a column to interpolate}
+\item{.data}{An input dataset with a column to interpolate}
+
+\item{.x}{The column to interpolate}
+
+\item{.t}{An optional column specifying times associated with \code{.x}}
+
+\item{rtn_data}{Whether to return the input data as an attribute; used
+internally, but not usually needed.}
+}
+\value{
+A function with interpolated input \code{.t} and output \code{.x}
 }
 \description{
 Interpolate a Continuous Function of Time
 \code{interpolate()} creates a function of time from a time-indexed input object.
-It powers \code{functionalize()}.
+It powers \code{functionalize()}. This documentation is unfinished.
 }

@@ -12,75 +12,37 @@ estimate_delay <- function(
 
   rtn <- rlang::arg_match(rtn)[[1]]
 
+  collect_expr <- rlang::enquo(.collection_date)
+  report_expr <- rlang::enquo(.report_date)
+
+  collect_nm <- coviData::select_colnames(.data, !!collect_expr)
+  report_nm <- coviData::select_colnames(.data, !!report_expr)
+
+  coviData::assert_cols(
+    .data,
+    collect_nm,
+    ptype = lubridate::Date(),
+    n = 1L
+  )
+
+  coviData::assert_cols(
+    .data,
+    report_nm,
+    ptype = lubridate::Date(),
+    n = 1L
+  )
+
+
   # Releases memory if `.data` has additional columns
-  data <- dplyr::select(.data, {{ .collection_date }}, {{ .report_date }})
+  data <- dplyr::select(.data, collect_nm, report_nm)
   remove(.data)
 
-  assertthat::assert_that(
-    NCOL(data) == 2,
-    msg = paste0(
-      "The selections for `.collection_date` and `.report_date` ",
-      "much match exactly one column each"
-    )
-  )
+  collect_idx <- data[[collect_nm]] %>% unique() %>% sort()
 
-  # Column names are easier to reference by and make for more informative errors
-   collect_nm <- data %>%
-    dplyr::select({{ .collection_date }}) %>%
-    colnames()
-
-  report_nm <- data %>%
-    dplyr::select({{ .report_date }}) %>%
-    colnames()
-
-  # Each selection should match one column
-  purrr::when(
-    vec_size(collect_nm),
-    . > 1 ~ rlang::abort(
-      paste0(
-        rlang::enexpr(.collection_date) %>% rlang::expr_label(),
-        "\n\n",
-        "must select one column, but it matches multiple:\n",
-        rlang::format_error_bullets(collect_nm)
-      )
-    ),
-    . < 1 ~ rlang::abort(
-      paste0(
-        rlang::enexpr(.collection_date) %>% rlang::expr_label(),
-        "\n\n",
-        "must select one column, but it matches none."
-      )
-    )
-  )
-
-  purrr::when(
-    vec_size(report_nm),
-    . > 1 ~ rlang::abort(
-      paste0(
-        rlang::enexpr(.report_date) %>% rlang::expr_label(),
-        "\n\n",
-        "must select one column, but it matches multiple:\n",
-        rlang::format_error_bullets(report_nm)
-      )
-    ),
-    . < 1 ~ rlang::abort(
-      paste0(
-        rlang::enexpr(.report_date) %>% rlang::expr_label(),
-        "\n\n",
-        "must select one column, but it matches none."
-      )
-    )
-  )
-
-  # Variables must be dates
-  assertthat::assert_that(
-    lubridate::is.Date(data[[collect_nm]]),
-    msg = paste0(collect_nm, " must be of type `Date`")
-  )
-
-  assertthat::assert_that(
-    lubridate::is.Date(data[[report_nm]]),
-    msg = paste0(report_nm, " must be of type `Date`")
+  period <- timetk::tk_get_frequency(
+    collect_idx,
+    period = period,
+    message = FALSE
   )
 
   # Prefer robust mean, but use non_robust if period isn't long enough
@@ -95,7 +57,7 @@ estimate_delay <- function(
       ) %>% coef()
     }
   } else {
-    rlang::warn("`period` is less than 14 days; using non-robust average")
+    rlang::inform("`period` is less than 14 days; using non-robust average")
     wt_mean <- function(x, w) {
       weighted.mean(
         x,
@@ -104,6 +66,7 @@ estimate_delay <- function(
       )
     }
   }
+
   # Rolling weighted mean
   wt_mean_rolling <- timetk::slidify(
     ~ wt_mean(.x, w = .y),

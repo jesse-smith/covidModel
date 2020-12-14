@@ -1,6 +1,15 @@
 #' Bayesian Structural Time Series: Fit Model
 #'
-#' @inherit bsts::bsts
+#' Fit a bsts model.
+#'
+#' @param state A list specifying the state sub-models
+#'
+#' @param .data The data to use for estimation
+#'
+#' @param iterations The number of MCMC iterations to perform
+#'
+#' @param ... Futher arguments to pass to
+#'   \code{\link[bsts:bsts]{bsts()}}
 #'
 #' @export
 bsts_fit <- function(

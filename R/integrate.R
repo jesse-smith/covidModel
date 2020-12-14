@@ -206,11 +206,18 @@ interpolate_vec <- function(x, t = vec_seq_along(x)) {
 
 #' Interpolate a Continuous Function of Time
 #' `interpolate()` creates a function of time from a time-indexed input object.
-#' It powers `functionalize()`.
+#' It powers `functionalize()`. This documentation is unfinished.
 #'
-#' @param .data A input dataset with a column to interpolate
+#' @param .data An input dataset with a column to interpolate
 #'
-#' @param .x
+#' @param .x The column to interpolate
+#'
+#' @param .t An optional column specifying times associated with `.x`
+#'
+#' @param rtn_data Whether to return the input data as an attribute; used
+#'   internally, but not usually needed.
+#'
+#' @return A function with interpolated input `.t` and output `.x`
 interpolate <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
 
   .x <- if (rlang::is_missing(.x)) rlang::sym("data") else rlang::ensym(.x)
@@ -242,7 +249,22 @@ interpolate <- function(.data, .x, .t = NULL, rtn_data = FALSE) {
 }
 
 #' Integrate a Vector w.r.t. Time
-#' `integrate_dt()`
+#'
+#' `functionalize()` takes its input and returns a interpolated function of `.t`
+#' that is twice-differentiable and once-integrable. This documentation is
+#' unfinished.
+#'
+#' @param .data A data frame
+#'
+#' @param .x A column to interpolate
+#'
+#' @param .t An optional time index; if `NULL`, will be set to the index of
+#'   `.x`
+#'
+#' @param slices The maximum number of slices to use when integrating between
+#'   two points.
+#'
+#' @return The above described function
 functionalize <- function(.data, .x, .t = NULL, slices = 1e3L) {
 
   slices <- vctrs::vec_cast(slices, to = integer())

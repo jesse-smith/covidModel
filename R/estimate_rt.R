@@ -30,8 +30,8 @@
 #' @export
 estimate_rt <- function(
   .data,
-  incid = "smoothed_cleaned",
-  t = ".t",
+  incid = "trend",
+  t = "collection_date",
   serial_interval_mean = 6,
   serial_interval_sd = 4.17
 ) {
@@ -140,26 +140,79 @@ tidy_rt <- function(rt) {
 
 #' Prepare a Linelist for Rt Estimation
 #'
-#' `prep_linelist()` converts a linelist to an incidence curve with anomalies
-#' and seasonality removed. It also filters out reporting errors and truncates
-#' the data at the last fully observed incidence date (as defined by
-#' `pct_reported`).
+#' `prep_linelist()` converts a linelist to an incidence curve, replaces
+#' anomalous counts with the expected value, and decomposes the result into
+#' trend, seasonality, and remainder components. It also filters out reporting
+#' errors and truncates the data at the last fully observed incidence date
+#' (as defined by `pct_reported`, see that parameter for details). All
+#' calculations are performed on the log scale, but the result is returned on
+#' the input scale (assumed linear).
+#'
+#' @param .data A data frame containing one incident observation per row
+#'
+#' @param .collection_date `<tidy-select>` A `Date` column to use as the
+#'   collection date of the observed case
+#'
+#' @param .report_date `<tidy-select>` A `Date` column to use as the report
+#'   date of the observed case
+#'
+#' @param start_date The start date of the epidemic;
+#'   defaults to `"2020-03-12"`, which is the beginning of the contiguous
+#'   part of Shelby County's observed cases (at least one case observed per
+#'   day since that date).
+#'
+#' @param trend The length of time to use in trend decomposition; can be a
+#'   time-based definition (e.g. "1 month") or an integer number of days. The
+#'   default is `"30 days"`; however, if `NULL` or `"auto"`, `trend` is set
+#'   automatically using the tunable heuristics in the timetk package.
+#'
+#' @param period The length of time to use in seasonal decomposition; can be a
+#'   time-based definition (e.g. "1 week") or an integer number of days. The
+#'   default is `"7 days"`; however, if `NULL` or `"auto"`, `period` is set
+#'   automatically using the tunable heuristics in the timetk package.
+#'
+#' @param delay_period The length of time to use in calculating reporting
+#'   delay; can be a time-based definition (e.g. "2 weeks") or an integer number
+#'   of days. If `NULL`, `delay_period` is set to `"14 days"`.
+#'
+#' @param pct_reported The percent of total cases reported before considering
+#'   a collection date to be fully observed. It is not recommended to set this
+#'   to `1`, as reporting delays typically contain very large outliers which
+#'   will skew the results. The default is `0.9`, which strikes a balance
+#'   between sensitivity and robustness in Shelby County data.
+#'
+#' @param cutoff The cutoff value for outlier detection; controls both the
+#'   maximum percentage of data points that may be considered outliers, as well
+#'   as the critical value for the Generalized Extreme Studentized Deviate test
+#'   used to detect the outliers. Can be interpreted as the desired maximum
+#'   likelihood that an individual data point is labelled an outlier.
+#'
+#' @param plot_anomalies Should anomalies be plotted for visual inspection? If
+#'   `TRUE`, the plot will be on the log-scale.
+#'
+#' @return A `tibble` with a date column (named the same as the column specified
+#'   by `.collection_date`) and `observed`, `season`, `trend`, and `remainder`
+#'   columns. All numeric columns have outlier replaced.
 prep_linelist <- function(
   .data,
   .collection_date = collection_date,
   .report_date = report_date,
   start_date = "2020-03-12",
-  trend = NULL,
-  period = NULL,
-  delay_period = 14L,
+  trend = "30 days",
+  period = "7 days",
+  delay_period = "14 days",
   pct_reported = 0.9,
   cutoff = 0.05,
   plot_anomalies = FALSE
 ) {
 
-  collect_nm <- coviData::select_colnames(.data, {{ .collection_date }})
+  collect_expr <- rlang::enquo(.collection_date)
 
-  report_nm <- coviData::select_colnames(.data, {{ .report_date }})
+  report_expr <- rlang::enquo(.report_date)
+
+  collect_nm <- coviData::select_colnames(.data, !!collect_expr)
+
+  report_nm <- coviData::select_colnames(.data, !!report_expr)
 
   end_date <- estimate_delay(
     .data,
@@ -186,6 +239,7 @@ prep_linelist <- function(
     "`estimate_rt`: Removing logically inconsistent or missing observations"
   )
 
+  start_date <- lubridate::as_date(start_date)
 
   .data %T>%
     {rlang::inform(removing_start_date)} %>%
@@ -217,15 +271,64 @@ prep_linelist <- function(
     expm1_decomposed()
 }
 
+#' Convert Decompositions Performed Under a `log1p()` Transform to Linear Scale
+#'
+#' `expm1_decomposed()` converts the output of
+#' \code{\link[anomalize:time_decompose]{time_decompose()}} back to the linear
+#' scale when the input to `time_decompose()` is on the log scale. This amounts
+#' to selective sequential application of \code{\link[base:expm1]{expm1()}} to
+#' the component columns.
+#'
+#' Because log-scale additive decomposition is multiplicative decomposition on
+#' the linear scale, functions which automatically perform decomposition on the
+#' log scale yield unexpected output. To remedy this, an approximate conversion
+#' back to the linear scale can be performed. The steps are as follows (with all
+#' exponentiation follow by an "add-1" operation):
+#'
+#' \enumerate{
+#'   \item \strong{observed}: Exponentiate the `observed` column
+#'   \item \strong{trend}: Exponentiate the `trend` column
+#'   \item \strong{season}: Exponentiate `trend + season` and subtract the
+#'     exponentiated `trend`
+#'   \item \strong{remainder} Subtract the exponentiated `trend` and `season`
+#'     from the exponentiated `observed` values (`observed - trend - season`)
+#' }
+#'
+#' The underlying code is perhaps a simpler explanation than the above; consult
+#' it for further exposition.
+#'
+#' Exponentiating the `observed` values is a simple inverse transform; however,
+#' the component columns require some assumptions to convert back to a linear
+#' scale. This process uses the `trend` as a "base" and simply exponentiates it
+#' as in `observed`. This can then be used to derive the `season` component, and
+#' the `remainder` is whatever is left over. While this is not a theoretically
+#' valid process (there is none for this operation), it is consistent with
+#' treating the `trend` as a smoothed version of `observed`, which is usually
+#' done in practice. Once this assumption is made, the `season` transformation
+#' becomes valid. The `remainder` is then assumed to be the difference between
+#' the observed values (`observed`) expected values (`season + trend`), as
+#' usual.
+#'
+#' @param .data The output of `time_decompose()`
+#'
+#' @return The input decomposition with `expm1()` applied appropriately
+#'
+#' @seealso \code{\link[anomalize:time_decompose]{time_decompose()}},
+#'   \code{\link[base:expm1]{expm1()}}
+#'
+#' @keywords internal
+#'
+#' @export
 expm1_decomposed <- function(.data) {
 
-  .season = .data[["season"]]
-  .trend = .data[["trend"]]
-  .remainder = .data[["remainder"]]
+  .observed <- .data[["observed"]]
+  .season <- .data[["season"]]
+  .trend <- .data[["trend"]]
+  .remainder <- .data[["remainder"]]
 
   dplyr::mutate(
     .data,
-    observed = expm1(.data[["observed"]]),
+    observed = expm1(.observed),
     trend = expm1(.trend),
     season = expm1(.trend + .season) - .data[["trend"]],
     remainder = .data[["observed"]] - .data[["trend"]] - .data[["season"]]
@@ -253,22 +356,22 @@ expm1_decomposed <- function(.data) {
 #' @keywords internal
 NULL
 
-#' @rdname gamma-distr_conversion
+#' @rdname gamma-distr-conversion
 gamma_shape <- function(mean, sd) {
   (mean / sd)^2L
 }
 
-#' @rdname gamma-distr_conversion
+#' @rdname gamma-distr-conversion
 gamma_rate <- function(mean, sd) {
   mean / sd^2L
 }
 
-#' @rdname gamma-distr_conversion
+#' @rdname gamma-distr-conversion
 gamma_mean <- function(shape, rate) {
   shape / rate
 }
 
-#' @rdname gamma-distr_conversion
+#' @rdname gamma-distr-conversion
 gamma_sd <- function(shape, rate) {
   sqrt(shape) / rate
 }

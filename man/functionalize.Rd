@@ -2,12 +2,26 @@
 % Please edit documentation in R/integrate.R
 \name{functionalize}
 \alias{functionalize}
-\title{Integrate a Vector w.r.t. Time
-\code{integrate_dt()}}
+\title{Integrate a Vector w.r.t. Time}
 \usage{
 functionalize(.data, .x, .t = NULL, slices = 1000L)
 }
+\arguments{
+\item{.data}{A data frame}
+
+\item{.x}{A column to interpolate}
+
+\item{.t}{An optional time index; if \code{NULL}, will be set to the index of
+\code{.x}}
+
+\item{slices}{The maximum number of slices to use when integrating between
+two points.}
+}
+\value{
+The above described function
+}
 \description{
-Integrate a Vector w.r.t. Time
-\code{integrate_dt()}
+\code{functionalize()} takes its input and returns a interpolated function of \code{.t}
+that is twice-differentiable and once-integrable. This documentation is
+unfinished.
 }

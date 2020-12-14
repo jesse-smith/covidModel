@@ -1,3 +1,4 @@
+
 #' Bayesian Structural Time Series: Trend Components
 #'
 #' `bsts_trend()` is a generic that wraps the various trend models in the
