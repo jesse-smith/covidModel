@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simple Bayesian Estimates of the Time-Varying Reproduction Number — estimate_rt • covidModel</title>
+<title>Resample Endpoint Errors in an STL Decomposition — resample_decomposition • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,14 +46,14 @@
 
 
 
-<meta property="og:title" content="Simple Bayesian Estimates of the Time-Varying Reproduction Number — estimate_rt" />
-<meta property="og:description" content="estimate_rt() uses the methodology of Cori et al 2013 to estimate the time-
-varying reproduction number. It calls
-estimate_R(method = &quot;parametric_si&quot;) under
-the hood. It purposefully does not support aggregating counts over multiple
-time periods due to poor coverage of the resulting credible intervals, as
-well as shifting of the results due to lagging of the results. Use
-smooth_for_rt() to pre-smooth the data instead." />
+<meta property="og:title" content="Resample Endpoint Errors in an STL Decomposition — resample_decomposition" />
+<meta property="og:description" content="resample_decomposition() computes the right-hand endpoint errors of an
+STL decomposition across all past data. Since smoothing generally depends on
+both past and future observations, recent points in a smoothing algorithm
+are subject to change conditional on future data (up to the limit of the
+smoothing window, if one exists). resample_decomposition() provides the
+previous changes for each &quot;forecast&quot; horizon, as well as the associated
+error, for each component of the decomposition." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -117,27 +117,26 @@ smooth_for_rt() to pre-smooth the data instead." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Simple Bayesian Estimates of the Time-Varying Reproduction Number</h1>
+    <h1>Resample Endpoint Errors in an STL Decomposition</h1>
     
-    <div class="hidden name"><code>estimate_rt.Rd</code></div>
+    <div class="hidden name"><code>resample_decomposition.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><code>estimate_rt()</code> uses the methodology of Cori et al 2013 to estimate the time-
-varying reproduction number. It calls
-<code><a href='https://rdrr.io/pkg/EpiEstim/man/estimate_R.html'>estimate_R(method = "parametric_si")</a></code> under
-the hood. It purposefully does not support aggregating counts over multiple
-time periods due to poor coverage of the resulting credible intervals, as
-well as shifting of the results due to lagging of the results. Use
-<code>smooth_for_rt()</code> to pre-smooth the data instead.</p>
+    <p><code>resample_decomposition()</code> computes the right-hand endpoint errors of an
+STL decomposition across all past data. Since smoothing generally depends on
+both past and future observations, recent points in a smoothing algorithm
+are subject to change conditional on future data (up to the limit of the
+smoothing window, if one exists). <code>resample_decomposition()</code> provides the
+previous changes for each "forecast" horizon, as well as the associated
+error, for each component of the decomposition.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>estimate_rt</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>resample_decomposition</span><span class='op'>(</span>
   <span class='va'>.data</span>,
-  incid <span class='op'>=</span> <span class='st'>"trend"</span>,
-  .t <span class='op'>=</span> <span class='st'>"collection_date"</span>,
-  serial_interval_mean <span class='op'>=</span> <span class='fl'>6</span>,
-  serial_interval_sd <span class='op'>=</span> <span class='fl'>4.17</span>
+  .col <span class='op'>=</span> <span class='st'>"observed_cleaned"</span>,
+  trend <span class='op'>=</span> <span class='st'>"31 days"</span>,
+  period <span class='op'>=</span> <span class='st'>"7 days"</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -145,36 +144,43 @@ well as shifting of the results due to lagging of the results. Use
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>.data</th>
-      <td><p>A data frame containing the incidence curve and dates</p></td>
+      <td><p>A data frame containing the time series data to resample</p></td>
     </tr>
     <tr>
-      <th>incid</th>
-      <td><p>The quoted name of a numeric column containing the incidence
-curve</p></td>
+      <th>.col</th>
+      <td><p>The column containing the data to resample</p></td>
     </tr>
     <tr>
-      <th>serial_interval_mean</th>
-      <td><p>The average number of days between infection of a
-primary case and a secondary case</p></td>
+      <th>trend</th>
+      <td><p>The length of time to use in trend decomposition; can be a
+time-based definition (e.g. "1 month") or an integer number of days. The
+default is <code>"30 days"</code>; however, if <code>NULL</code> or <code>"auto"</code>, <code>trend</code> is set
+automatically using the tunable heuristics in the timetk package.</p></td>
     </tr>
     <tr>
-      <th>serial_interval_sd</th>
-      <td><p>The standard deviation of the number of days
-between infection of a primary case and a secondary case</p></td>
-    </tr>
-    <tr>
-      <th>t</th>
-      <td><p>The quoted name of a date column corresponding to the observations
-in <code>incid</code></p></td>
+      <th>period</th>
+      <td><p>The length of time to use in seasonal decomposition; can be a
+time-based definition (e.g. "1 week") or an integer number of days. The
+default is <code>"7 days"</code>; however, if <code>NULL</code> or <code>"auto"</code>, <code>period</code> is set
+automatically using the tunable heuristics in the timetk package.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>tibble</code> with columns <code>.t</code>, <code>.pred</code> (the median), <code>.pred_lower</code>
-(the lower bound of the 95% credible interval), <code>.pred_upper</code>
-(the upper bound of the 95% credible interval), <code>.mean</code> (the average), and
-<code>.cv</code> (the coefficient of variation)</p>
+    <p>A list of <code>tibble</code> objects, each containing the results of one
+sampling step. See the <code>Value</code> section of
+<code><a href='sample_decomposition.html'>sample_decomposition()</a></code> for
+information on the components of each sample.</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p>The workhorse function
+<code><a href='sample_decomposition.html'>sample_decomposition()</a></code> and
+the higher-level function
+<code>
+  <a href='resample_linelist_decomposition.html'>
+  resample_linelist_decomposition()
+  </a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

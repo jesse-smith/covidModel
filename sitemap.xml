@@ -7,6 +7,9 @@
     <loc>https://jesse-smith.github.io/covidModel/reference/assert.html</loc>
   </url>
   <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/clean_linelist.html</loc>
+  </url>
+  <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/coviData-helpers.html</loc>
   </url>
   <url>
@@ -40,7 +43,19 @@
     <loc>https://jesse-smith.github.io/covidModel/reference/prep_linelist.html</loc>
   </url>
   <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/prep_linelist_decomposition.html</loc>
+  </url>
+  <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/reexports.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/resample_decomposition.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/resample_linelist_decomposition.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/sample_decomposition.html</loc>
   </url>
   <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/tidy_rt.html</loc>
