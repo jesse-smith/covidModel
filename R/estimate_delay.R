@@ -7,7 +7,8 @@ estimate_delay <- function(
   period = 14L,
   today = Sys.Date(),
   rtn = c("last_complete", "incomplete_only", "all"),
-  min_dt = as.Date("2020-04-12")
+  min_dt = as.Date("2020-04-12"),
+  quiet = FALSE
 ) {
 
   rtn <- rlang::arg_match(rtn)[[1]]
@@ -57,7 +58,9 @@ estimate_delay <- function(
       ) %>% coef()
     }
   } else {
-    rlang::inform("`period` is less than 14 days; using non-robust average")
+    if (!quiet) {
+      rlang::inform("`period` is less than 14 days; using non-robust average")
+    }
     wt_mean <- function(x, w) {
       weighted.mean(
         x,
@@ -77,59 +80,71 @@ estimate_delay <- function(
   )
 
   removing_min_dt <- paste0(
-    "`estimate_delay`: Removing collection dates earlier than ", min_dt
+    "Removing collection dates earlier than ", min_dt
   )
 
   filtering_illogical_or_missing <- paste0(
-    "`estimate_delay`: Removing logically inconsistent or missing observations"
+    "Removing logically inconsistent or missing observations"
   )
 
-  data %T>%
-    # Inform user of filtered observations
-    {rlang::inform(filtering_illogical_or_missing)} %>%
-    tidylog::filter(
-      dplyr::between(.data[[collect_nm]], as.Date("2020-03-05"), Sys.Date()),
-      dplyr::between(.data[[report_nm]], as.Date("2020-03-05"), Sys.Date()),
-      .data[[collect_nm]] <= .data[[report_nm]],
-      !is.na(.data[[collect_nm]]),
-      !is.na(.data[[report_nm]])
-    ) %T>%
-    {rlang::inform(removing_min_dt)} %>%
-    tidylog::filter(.data[[collect_nm]] >= min_dt) %>%
-    dplyr::mutate(
-      delay = as.integer(.data[[report_nm]] - .data[[collect_nm]])
-	  ) %>%
-    dplyr::group_by(.data[[collect_nm]]) %>%
-    dplyr::summarize(
-      delay = quantile(delay, prob = pct, type = 8),
-      n = dplyr::n()
-    ) %>%
-    fill_dates(!!rlang::sym(collect_nm), end = today) %>%
-    dplyr::transmute(
-      .data[[collect_nm]],
-      prior_delay = wt_mean_rolling(.data[["delay"]], .data[["n"]]),
-      t_from_today = as.integer(today - .data[[collect_nm]]),
-      incomplete = (round(prior_delay) >= t_from_today) %>%
-        tidyr::replace_na(FALSE) %>%
-        dplyr::cumany()
-    ) %>%
-    dplyr::select(-t_from_today) %>%
-    purrr::when(
-      rtn == "last_complete" ~ dplyr::mutate(
-          .,
-          f = dplyr::cumany(dplyr::lead(.data[["incomplete"]]))
-        ) %>%
-        dplyr::filter(.data[["f"]]) %>%
-        dplyr::select(-.data[["f"]]) %>%
-        dplyr::filter(
-          .data[[collect_nm]] == min(.data[[collect_nm]], na.rm = TRUE)
-        ),
-      rtn == "incomplete" ~ dplyr::filter(., .data[["incomplete"]]),
-      rtn == "all" ~ .
-    ) %>%
-    dplyr::mutate(
-      delay = today - .data[[collect_nm]],
-      .before = "incomplete"
+  body <- rlang::expr({
+    data %T>%
+      # Inform user of filtered observations
+      {if (!quiet) rlang::inform(filtering_illogical_or_missing)} %>%
+      tidylog::filter(
+        dplyr::between(.data[[collect_nm]], as.Date("2020-03-05"), Sys.Date()),
+        dplyr::between(.data[[report_nm]], as.Date("2020-03-05"), Sys.Date()),
+        .data[[collect_nm]] <= .data[[report_nm]],
+        !is.na(.data[[collect_nm]]),
+        !is.na(.data[[report_nm]])
+      ) %T>%
+      {if (!quiet) rlang::inform(removing_min_dt)} %>%
+      tidylog::filter(.data[[collect_nm]] >= min_dt) %>%
+      dplyr::mutate(
+        delay = as.integer(.data[[report_nm]] - .data[[collect_nm]])
+  	  ) %>%
+      dplyr::group_by(.data[[collect_nm]]) %>%
+      dplyr::summarize(
+        delay = quantile(delay, prob = pct, type = 8),
+        n = dplyr::n()
+      ) %>%
+      fill_dates(!!rlang::sym(collect_nm), end = today) %>%
+      dplyr::transmute(
+        .data[[collect_nm]],
+        prior_delay = wt_mean_rolling(.data[["delay"]], .data[["n"]]),
+        t_from_today = as.integer(today - .data[[collect_nm]]),
+        incomplete = (round(prior_delay) >= t_from_today) %>%
+          tidyr::replace_na(FALSE) %>%
+          dplyr::cumany()
+      ) %>%
+      dplyr::select(-t_from_today) %>%
+      purrr::when(
+        rtn == "last_complete" ~ dplyr::mutate(
+            .,
+            f = dplyr::cumany(dplyr::lead(.data[["incomplete"]]))
+          ) %>%
+          dplyr::filter(.data[["f"]]) %>%
+          dplyr::select(-.data[["f"]]) %>%
+          dplyr::filter(
+            .data[[collect_nm]] == min(.data[[collect_nm]], na.rm = TRUE)
+          ),
+        rtn == "incomplete" ~ dplyr::filter(., .data[["incomplete"]]),
+        rtn == "all" ~ .
+      ) %>%
+      dplyr::mutate(
+        delay = today - .data[[collect_nm]],
+        .before = "incomplete"
+      )
+  })
+
+  if (quiet) {
+    suppressMessages(
+      suppressWarnings(
+        eval(body)
+      )
     )
+  } else {
+    eval(body)
+  }
 }
 

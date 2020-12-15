@@ -9,23 +9,15 @@ data <- dplyr::semi_join(
   by = "inv_local_id"
 )
 
-last_complete <- estimate_delay(data)
+rt <- rt_from_linelist(data)
 
-data %>%
-  prep_linelist(trend = 30L)
-  estimate_rt() ->
-rt
+jagged_rt <- rt_from_linelist(data, trend = 1L, resample = FALSE)
 
-data %>%
-  prep_linelist(trend = 1L) %>%
-  estimate_rt(period = 1L) ->
-raw_rt
-
-rt_plot <- plot_rt(rt, raw = raw_rt)
+rt_plot <- plot_rt(rt, raw = jagged_rt)
 
 rt_plot
 
 save_plot(
   rt_plot,
-  "rt_plot.png"
+  paste0("figs/rt_plot", Sys.Date(), ".png")
 )

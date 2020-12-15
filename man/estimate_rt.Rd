@@ -7,7 +7,7 @@
 estimate_rt(
   .data,
   incid = "trend",
-  t = "collection_date",
+  .t = "collection_date",
   serial_interval_mean = 6,
   serial_interval_sd = 4.17
 )
@@ -18,14 +18,14 @@ estimate_rt(
 \item{incid}{The quoted name of a numeric column containing the incidence
 curve}
 
-\item{t}{The quoted name of a date column corresponding to the observations
-in \code{incid}}
-
 \item{serial_interval_mean}{The average number of days between infection of a
 primary case and a secondary case}
 
 \item{serial_interval_sd}{The standard deviation of the number of days
 between infection of a primary case and a secondary case}
+
+\item{t}{The quoted name of a date column corresponding to the observations
+in \code{incid}}
 }
 \value{
 A \code{tibble} with columns \code{.t}, \code{.pred} (the median), \code{.pred_lower}
