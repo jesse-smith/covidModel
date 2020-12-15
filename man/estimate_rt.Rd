@@ -2,21 +2,32 @@
 % Please edit documentation in R/estimate_rt.R
 \name{estimate_rt}
 \alias{estimate_rt}
-\title{Simple Bayesian Estimates of the Time-Varying Reproduction Number}
+\title{(Boosted) Bayesian Estimates of Effective Reproduction Number}
 \usage{
 estimate_rt(
   .data,
-  incid = "trend",
-  .t = "collection_date",
+  .collection_date = "collection_date",
+  .report_date = "report_date",
   serial_interval_mean = 6,
-  serial_interval_sd = 4.17
+  serial_interval_sd = 4.17,
+  start_date = "2020-03-12",
+  trend = "30 days",
+  period = "7 days",
+  delay_period = "14 days",
+  pct_reported = 0.9,
+  cutoff = 0.05,
+  plot_anomalies = FALSE,
+  boost = TRUE
 )
 }
 \arguments{
-\item{.data}{A data frame containing the incidence curve and dates}
+\item{.data}{A data frame containing one incident observation per row}
 
-\item{incid}{The quoted name of a numeric column containing the incidence
-curve}
+\item{.collection_date}{\verb{<tidy-select>} A \code{Date} column to use as the
+collection date of the observed case}
+
+\item{.report_date}{\verb{<tidy-select>} A \code{Date} column to use as the report
+date of the observed case}
 
 \item{serial_interval_mean}{The average number of days between infection of a
 primary case and a secondary case}
@@ -24,8 +35,42 @@ primary case and a secondary case}
 \item{serial_interval_sd}{The standard deviation of the number of days
 between infection of a primary case and a secondary case}
 
-\item{t}{The quoted name of a date column corresponding to the observations
-in \code{incid}}
+\item{start_date}{The start date of the epidemic;
+defaults to \code{"2020-03-12"}, which is the beginning of the contiguous
+part of Shelby County's observed cases (at least one case observed per
+day since that date).}
+
+\item{trend}{The length of time to use in trend decomposition; can be a
+time-based definition (e.g. "1 month") or an integer number of days. If
+\code{NULL} or \code{"auto"}, \code{trend} is set automatically using the tunable
+heuristics in the timetk package.}
+
+\item{period}{The length of time to use in seasonal decomposition; can be a
+time-based definition (e.g. "1 week") or an integer number of days. If
+\code{NULL} or \code{"auto"}, \code{period} is set automatically using the tunable
+heuristics in the timetk package.}
+
+\item{delay_period}{The length of time to use in calculating reporting
+delay; can be a time-based definition (e.g. "2 weeks") or an integer number
+of days. If \code{NULL}, \code{delay_period} is set to \code{"14 days"}.}
+
+\item{pct_reported}{The percent of total cases reported before considering
+a collection date to be fully observed. It is not recommended to set this
+to \code{1}, as reporting delays typically contain very large outliers which
+will skew the results. The default is \code{0.9}, which strikes a balance
+between sensitivity and robustness in Shelby County data.}
+
+\item{cutoff}{The cutoff value for anomaly detection; controls both the
+maximum percentage of data points that may be considered anomalies, as well
+as the critical value for the Generalized Extreme Studentized Deviate test
+used to detect the anomalies. Can be interpreted as the desired maximum
+probability that an individual data point is labeled an anomaly.}
+
+\item{plot_anomalies}{Should anomalies be plotted for visual inspection? If
+\code{TRUE}, the plot will be on the log-scale.}
+
+\item{boost}{Should the error in future-conditional estimates be estimated
+and accounted for?}
 }
 \value{
 A \code{tibble} with columns \code{.t}, \code{.pred} (the median), \code{.pred_lower}
@@ -34,11 +79,13 @@ A \code{tibble} with columns \code{.t}, \code{.pred} (the median), \code{.pred_l
 \code{.cv} (the coefficient of variation)
 }
 \description{
-\code{estimate_rt()} uses the methodology of Cori et al 2013 to estimate the time-
-varying reproduction number. It calls
-\code{\link[EpiEstim:estimate_R]{estimate_R(method = "parametric_si")}} under
-the hood. It purposefully does not support aggregating counts over multiple
-time periods due to poor coverage of the resulting credible intervals, as
-well as shifting of the results due to lagging of the results. Use
-\code{smooth_for_rt()} to pre-smooth the data instead.
+\code{estimate_rt()} applies the approach of Cori et al (2013) to estimate
+a gamma-distributed reproduction number. It implements additional
+pre-processing to handle outliers and seasonality, and it smooths the data
+\emph{before} computing Rt, rather than during the estimate. By default,
+it also corrects the portion of the smooth conditional on future data using
+rolling cross-validation and geometrically-weighted bootstraps based on the
+residuals for each future-conditional time point. Bootstrap weights are
+calculated using a geometric sequence with the first-order autoregressive
+coefficient as the discount factor.
 }

@@ -1,25 +1,29 @@
-#' Resample the STL Decomposition Step of `prep_linelist()`
+#' Cross-Validate the STL Decomposition Step of `prep_linelist()`
 #'
-#' `resample_linelist_decomposition()` repeatedly applies the STL decomposition
-#' step of \code{\link[covidModel:prep_linelist]{prep_linelist()}} to obtain
-#' "forecast" errors of the portion of the smooth conditional on future data.
-#' See \code{\link[covidModel:resample_decomposition]{resample_decomposition()}}
+#' `cv_linelist_decomposition()` applies rolling cross-validation to the
+#' linelist decomposition. It repeatedly applies the STL decomposition step of
+#' \code{\link[covidModel:prep_linelist]{prep_linelist()}} to each stable point
+#' in the timeseries and obtains "forecast" errors of the portion of the smooth
+#' conditional on future data. See
+#' \code{\link[covidModel:cv_decomposition]{cv_decomposition()}}
 #' for details.
 #'
 #' @inheritParams prep_linelist
 #'
 #' @return A list of `tibble` objects, each containing the results of one
-#'   sampling step. See the `Value` section of
-#'   \code{\link[covidModel:sample_decomposition]{sample_decomposition()}} for
-#'   information on the components of each sample.
+#'   sampling step for the dates in `start_date + trend` to
+#'   `end_date - trend/2`, where `end_date` is the last completely observed
+#'   date. See the `Value` section of
+#'   \code{\link[covidModel:validate_decomposition]{validate_decomposition()}}
+#'   for information on the components of each sample.
 #'
 #' @seealso \code{\link[covidModel:prep_linelist]{prep_linelist()}},
-#'   \code{\link[covidModel:resample_decomposition]{resample_decomposition()}}
+#'   \code{\link[covidModel:cv_decomposition]{cv_decomposition()}}
 #'
 #' @keywords internal
 #'
 #' @export
-resample_linelist_decomposition <- function(
+cv_linelist_decomposition <- function(
   .data,
   .collection_date = "collection_date",
   .report_date = "report_date",
@@ -52,42 +56,48 @@ resample_linelist_decomposition <- function(
     ) %>%
     # Select needed columns
     dplyr::select(collect_nm, "observed_cleaned") %>%
-    # Resample along time series
-    resample_decomposition(
+    # Perform rolling cross-validation along time series
+    cv_decomposition(
       .col = "observed_cleaned",
       trend = trend,
       period = period
     )
 }
 
-#' Resample Endpoint Errors in an STL Decomposition
+#' Cross-Validate Predictions in an STL Decomposition Conditional on Future Data
 #'
-#' `resample_decomposition()` computes the right-hand endpoint errors of an
-#' STL decomposition across all past data. Since smoothing generally depends on
-#' both past and future observations, recent points in a smoothing algorithm
-#' are subject to change conditional on future data (up to the limit of the
-#' smoothing window, if one exists). `resample_decomposition()` provides the
-#' previous changes for each "forecast" horizon, as well as the associated
-#' error, for each component of the decomposition.
+#' `cv_decomposition()` applies rolling cross-validation to the portion of an
+#' STL decomposition conditional on future data. It provides
+#' the predicted values and associated "errors" for each "forecast" horizon and
+#' decomposed component across all stably-estimable time points.
 #'
-#' @inherit resample_linelist_decomposition params return
+#' When smoothing time series using LOESS, a portion of the smooth will change
+#' as future data comes in (approximately the last `trend/2` data points). These
+#' points are said to be conditional on future data, and the difference between
+#' the smooth with and without future data can be computed for all time points
+#' that have already reached the "stable" portion of the series. This is done by
+#' rolling the decomposition step across the time series and comparing the
+#' smoothed point at each "forecast" horizon to the stable estimates. In effect,
+#' this is rolling cross-validation of the STL decomposition using the fully
+#' smoothed data as the reference values.
+#'
+#' @inherit cv_linelist_decomposition params return
 #'
 #' @param .data A data frame containing the time series data to resample
 #'
 #' @param .col The column containing the data to resample
 #'
 #' @seealso The workhorse function
-#'   \code{\link[covidModel:sample_decomposition]{sample_decomposition()}} and
-#'   the higher-level function
+#'   \code{\link[covidModel:validate_decomposition]{validate_decomposition()}}
+#'   and the higher-level function
 #'   \code{
-#'   \link[covidModel:resample_linelist_decomposition]{
-#'   resample_linelist_decomposition()
-#'   }}
+#'   \link[covidModel:cv_linelist_decomposition]{cv_linelist_decomposition()}
+#'   }
 #'
 #' @keywords internal
 #'
 #' @export
-resample_decomposition <- function(
+cv_decomposition <- function(
   .data,
   .col = "observed_cleaned",
   trend = "31 days",
@@ -132,13 +142,13 @@ resample_decomposition <- function(
 
   end <- as.integer(size - half_trend)
 
-  resamples <- seq(start, end, by = 1L)
+  endpoints <- seq(start, end, by = 1L)
 
-  rlang::inform("Resampling decomposition...")
+  rlang::inform("Calculating decomposition error...")
 
   purrr::map(
-    resamples,
-    ~ sample_decomposition(
+    endpoints,
+    ~ validate_decomposition(
       .x,
       .data = .data,
       .ref = reference_data,
@@ -148,15 +158,15 @@ resample_decomposition <- function(
   )
 }
 
-#' Map a Dataset to an STL Decomposition Using Data Up to a Specific TIme Point
+#' Map a Dataset to an STL Decomposition Using Data Up to a Specific Time Point
 #'
-#' `sample_decomposition()` creates a sample decomposition and errors from a
+#' `validate_decomposition()` creates a sample decomposition and errors from a
 #' dataset, a reference decomposition, and decomposition parameters. It is
 #' designed to be used as a mapping function passed to
-#' \code{\link[purrr::map]{map()}} within
-#' \code{\link[covidModel:resample_decomposition]{resample_decomposition()}}.
+#' \code{\link[purrr:map]{map()}} within
+#' \code{\link[covidModel:cv_decomposition]{cv_decomposition()}}.
 #'
-#' @inheritParams resample_decomposition
+#' @inheritParams cv_decomposition
 #'
 #' @param .i The index of the sample; all data up to this point will be used
 #'
@@ -170,13 +180,13 @@ resample_decomposition <- function(
 #'   and `remainder_error`
 #'
 #' @seealso \code{
-#'   \link[covidModel:resample_decomposition]{resample_decomposition()}
+#'   \link[covidModel:cv_decomposition]{cv_decomposition()}
 #'   }
 #'
 #' @keywords internal
 #'
 #' @export
-sample_decomposition <- function(
+validate_decomposition <- function(
   .i,
   .data,
   .ref,

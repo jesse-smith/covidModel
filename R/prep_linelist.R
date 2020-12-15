@@ -8,6 +8,8 @@
 #' calculations are performed on the log scale, but the result is returned on
 #' the input scale (assumed linear).
 #'
+#' @inheritParams deanomalize
+#'
 #' @param .data A data frame containing one incident observation per row
 #'
 #' @param .collection_date `<tidy-select>` A `Date` column to use as the
@@ -21,16 +23,6 @@
 #'   part of Shelby County's observed cases (at least one case observed per
 #'   day since that date).
 #'
-#' @param trend The length of time to use in trend decomposition; can be a
-#'   time-based definition (e.g. "1 month") or an integer number of days. The
-#'   default is `"30 days"`; however, if `NULL` or `"auto"`, `trend` is set
-#'   automatically using the tunable heuristics in the timetk package.
-#'
-#' @param period The length of time to use in seasonal decomposition; can be a
-#'   time-based definition (e.g. "1 week") or an integer number of days. The
-#'   default is `"7 days"`; however, if `NULL` or `"auto"`, `period` is set
-#'   automatically using the tunable heuristics in the timetk package.
-#'
 #' @param delay_period The length of time to use in calculating reporting
 #'   delay; can be a time-based definition (e.g. "2 weeks") or an integer number
 #'   of days. If `NULL`, `delay_period` is set to `"14 days"`.
@@ -40,12 +32,6 @@
 #'   to `1`, as reporting delays typically contain very large outliers which
 #'   will skew the results. The default is `0.9`, which strikes a balance
 #'   between sensitivity and robustness in Shelby County data.
-#'
-#' @param cutoff The cutoff value for outlier detection; controls both the
-#'   maximum percentage of data points that may be considered outliers, as well
-#'   as the critical value for the Generalized Extreme Studentized Deviate test
-#'   used to detect the outliers. Can be interpreted as the desired maximum
-#'   likelihood that an individual data point is labelled an outlier.
 #'
 #' @param plot_anomalies Should anomalies be plotted for visual inspection? If
 #'   `TRUE`, the plot will be on the log-scale.

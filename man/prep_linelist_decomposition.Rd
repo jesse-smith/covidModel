@@ -32,14 +32,14 @@ part of Shelby County's observed cases (at least one case observed per
 day since that date).}
 
 \item{trend}{The length of time to use in trend decomposition; can be a
-time-based definition (e.g. "1 month") or an integer number of days. The
-default is \code{"30 days"}; however, if \code{NULL} or \code{"auto"}, \code{trend} is set
-automatically using the tunable heuristics in the timetk package.}
+time-based definition (e.g. "1 month") or an integer number of days. If
+\code{NULL} or \code{"auto"}, \code{trend} is set automatically using the tunable
+heuristics in the timetk package.}
 
 \item{period}{The length of time to use in seasonal decomposition; can be a
-time-based definition (e.g. "1 week") or an integer number of days. The
-default is \code{"7 days"}; however, if \code{NULL} or \code{"auto"}, \code{period} is set
-automatically using the tunable heuristics in the timetk package.}
+time-based definition (e.g. "1 week") or an integer number of days. If
+\code{NULL} or \code{"auto"}, \code{period} is set automatically using the tunable
+heuristics in the timetk package.}
 
 \item{delay_period}{The length of time to use in calculating reporting
 delay; can be a time-based definition (e.g. "2 weeks") or an integer number
@@ -51,11 +51,11 @@ to \code{1}, as reporting delays typically contain very large outliers which
 will skew the results. The default is \code{0.9}, which strikes a balance
 between sensitivity and robustness in Shelby County data.}
 
-\item{cutoff}{The cutoff value for outlier detection; controls both the
-maximum percentage of data points that may be considered outliers, as well
+\item{cutoff}{The cutoff value for anomaly detection; controls both the
+maximum percentage of data points that may be considered anomalies, as well
 as the critical value for the Generalized Extreme Studentized Deviate test
-used to detect the outliers. Can be interpreted as the desired maximum
-likelihood that an individual data point is labelled an outlier.}
+used to detect the anomalies. Can be interpreted as the desired maximum
+probability that an individual data point is labeled an anomaly.}
 
 \item{plot_anomalies}{Should anomalies be plotted for visual inspection? If
 \code{TRUE}, the plot will be on the log-scale.}

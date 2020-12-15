@@ -1,15 +1,35 @@
+#' Plot the Results of `estimate_rt()`
+#'
+#' `plot_rt()` plots the effective reproductive number over the course of the
+#' epidemic in Shelby County, along with reference dates and severity levels
+#' for comparison. Optionally, supplied unsmoothed Rt estimates to `.rough_rt`
+#' will add points for this estimates to the background for reference.
+#'
+#' @param .data Rt estimates resulting from a call to
+#'   \code{\link[covidModel:estimate_rt]{estimate_rt()}}
+#'
+#' @param start The start date of the x axis
+#'
+#' @param end The end date of the x axis
+#'
+#' @param .rough_rt Unsmoothed Rt estimates, e.g. as produced by
+#'   `estimate_rt(trend = 1L, boost = FALSE)`
+#'
+#' @return A `ggplot` object
+#'
+#' @export
 plot_rt <- function(
   .data,
   start = "2020-04-01",
   end = Sys.Date(),
-  raw = NULL
+  .rough_rt = NULL
 ) {
 
   .data %>%
     ggplot_rt() %>%
     add_rt_level_reference() %>%
     add_covid_events(lab_y = 2) %>%
-    {if (!is.null(raw)) add_rt_raw(., .data_raw = raw) else .} %>%
+    {if (!is.null(.rough_rt)) add_rt_rough(., .rough_rt = .rough_rt) else .} %>%
     add_rt_interval() %>%
     add_rt_curve() %>%
     add_rt_recent() %>%
@@ -18,6 +38,17 @@ plot_rt <- function(
     add_rt_scale()
 }
 
+#' Initialize Plotting of `estimate_rt()` Results
+#'
+#' @param .data The result of `estimate_rt()`
+#'
+#' @param start The start date of the figure
+#'
+#' @param end  THe end date of the figure
+#'
+#' @return A `ggplot` object
+#'
+#' @noRd
 ggplot_rt <- function(
   .data,
   start = "2020-04-01",
@@ -49,6 +80,11 @@ ggplot_rt <- function(
     set_axis_limits(xlim = xlim, ylim = ylim)
 }
 
+#' Add Background Reference Colors to Rt Plot
+#'
+#' @param gg_obj A `ggplot` object returned from `ggplot_rt`
+#'
+#' @noRd
 add_rt_level_reference <- function(gg_obj) {
 
   gg_obj +
@@ -100,6 +136,11 @@ add_rt_level_reference <- function(gg_obj) {
     )
 }
 
+#' Add Prediction Intervals to an Rt Plot
+#'
+#' @inheritParams add_rt_level_reference
+#'
+#' @noRd
 add_rt_interval <- function(gg_obj) {
   gg_obj +
     # Add 95% CI
@@ -114,6 +155,11 @@ add_rt_interval <- function(gg_obj) {
     )
 }
 
+#' Add the Expected Value to an Rt Plot
+#'
+#' @inheritParams add_rt_level_reference
+#'
+#' @noRd
 add_rt_curve <- function(gg_obj) {
 
   gg_obj +
@@ -125,15 +171,13 @@ add_rt_curve <- function(gg_obj) {
       size = 1,
       show.legend = FALSE
     )
-    # Add points
-    # ggplot2::geom_point(
-    #   ggplot2::aes(y = .data[[".pred"]]),
-    #   color = "grey30",
-    #   size = 1,
-    #   show.legend = FALSE
-    # )
 }
 
+#' Add a Label to the Most Recent Rt Estimate in an Rt Plot
+#'
+#' @inheritParams add_rt_level_reference
+#'
+#' @noRd
 add_rt_recent <- function(gg_obj) {
 
   rt_recent <- gg_obj[["data"]] %>%
@@ -202,6 +246,11 @@ add_rt_recent <- function(gg_obj) {
     )
 }
 
+#' Add Axis Labels to an Rt Plot
+#'
+#' @inheritParams add_rt_level_reference
+#'
+#' @noRd
 add_rt_axis_labels <- function(gg_obj) {
   add_axis_labels(gg_obj, xlab = "Date", ylab = "Rt")
 }
@@ -215,20 +264,33 @@ add_rt_title_caption <- function(gg_obj) {
   )
 }
 
+#' Add a Monthly Scale to an Rt Plot
+#'
+#' @inheritParams add_rt_level_reference
+#'
+#' @noRd
 add_rt_scale <- function(gg_obj) {
   add_scale_month(gg_obj) +
     ggplot2::scale_y_continuous(breaks = c(0, 0.5, 1, 1.5, 2))
 }
 
-add_rt_raw <- function(
+#' Add Points for Unsmoothed Rt Estimates to an Rt Plot
+#'
+#' @inheritParams add_rt_level_reference
+#'
+#' @param .rough_rt The unsmoothed Rt estimates, as resulting from
+#'   \code{
+#'   \link[covidModel:estimate_rt]{estimate_rt(trend = 1L, boost = FALSE)}
+#'   }
+#'
+#' @noRd
+add_rt_rough <- function(
   gg_obj,
-  .data_raw,
-  lag,
-  alpha = 0.1
+  .rough_rt
 ) {
 
   raw <- dplyr::semi_join(
-    .data_raw,
+    .rough_rt,
     gg_obj[["data"]],
     by = ".t"
   )
@@ -238,7 +300,7 @@ add_rt_raw <- function(
     ggplot2::geom_point(
       ggplot2::aes(y = raw[[".pred"]]),
       color = "grey30",
-      alpha = alpha,
+      alpha = 0.1,
       size = 1,
       show.legend = FALSE
     )
