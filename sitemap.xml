@@ -7,6 +7,9 @@
     <loc>https://jesse-smith.github.io/covidModel/reference/assert.html</loc>
   </url>
   <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/calibrate_rt.html</loc>
+  </url>
+  <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/clean_linelist.html</loc>
   </url>
   <url>
@@ -16,7 +19,22 @@
     <loc>https://jesse-smith.github.io/covidModel/reference/covidModel-package.html</loc>
   </url>
   <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/cv_decomposition.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/cv_linelist_decomposition.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/deanomalize.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/estimate_boosted_rt.html</loc>
+  </url>
+  <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/estimate_rt.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/estimate_unboosted_rt.html</loc>
   </url>
   <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/expm1_decomposed.html</loc>
@@ -37,6 +55,9 @@
     <loc>https://jesse-smith.github.io/covidModel/reference/magrittr-helpers.html</loc>
   </url>
   <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/plot_rt.html</loc>
+  </url>
+  <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/prep_data_rt.html</loc>
   </url>
   <url>
@@ -49,16 +70,13 @@
     <loc>https://jesse-smith.github.io/covidModel/reference/reexports.html</loc>
   </url>
   <url>
-    <loc>https://jesse-smith.github.io/covidModel/reference/resample_decomposition.html</loc>
-  </url>
-  <url>
-    <loc>https://jesse-smith.github.io/covidModel/reference/resample_linelist_decomposition.html</loc>
-  </url>
-  <url>
-    <loc>https://jesse-smith.github.io/covidModel/reference/sample_decomposition.html</loc>
+    <loc>https://jesse-smith.github.io/covidModel/reference/rgamma_vec.html</loc>
   </url>
   <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/tidy_rt.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/validate_decomposition.html</loc>
   </url>
   <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/vctr-helpers.html</loc>

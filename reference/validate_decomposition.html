@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • covidModel</title>
+<title>Map a Dataset to an STL Decomposition Using Data Up to a Specific Time Point — validate_decomposition • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,12 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Map a Dataset to an STL Decomposition Using Data Up to a Specific Time Point — validate_decomposition" />
+<meta property="og:description" content="validate_decomposition() creates a sample decomposition and errors from a
+dataset, a reference decomposition, and decomposition parameters. It is
+designed to be used as a mapping function passed to
+map() within
+cv_decomposition()." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -66,7 +71,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -108,98 +113,67 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Map a Dataset to an STL Decomposition Using Data Up to a Specific Time Point</h1>
+    
+    <div class="hidden name"><code>validate_decomposition.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p><code>validate_decomposition()</code> creates a sample decomposition and errors from a
+dataset, a reference decomposition, and decomposition parameters. It is
+designed to be used as a mapping function passed to
+<code><a href='https://purrr.tidyverse.org/reference/map.html'>map()</a></code> within
+<code><a href='cv_decomposition.html'>cv_decomposition()</a></code>.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>validate_decomposition</span><span class='op'>(</span><span class='va'>.i</span>, <span class='va'>.data</span>, <span class='va'>.ref</span>, <span class='va'>period</span>, <span class='va'>trend</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="calibrate_rt.html">calibrate_rt()</a></code> </p>
-        </td>
-        <td><p>Simple Bayesian Estimates of the Time-Varying Reproduction Number</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="deanomalize.html">deanomalize()</a></code> </p>
-        </td>
-        <td><p>Replace Anomalies with Expected Values Using the <code>anomalize</code> Package</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_rt.html">estimate_rt()</a></code> </p>
-        </td>
-        <td><p>(Boosted) Bayesian Estimates of Effective Reproduction Number</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_unboosted_rt.html">estimate_unboosted_rt()</a></code> </p>
-        </td>
-        <td><p>Run the Full Reproduction Number Modeling Pipeline</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="functionalize.html">functionalize()</a></code> </p>
-        </td>
-        <td><p>Integrate a Vector w.r.t. Time</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="interpolate.html">interpolate()</a></code> </p>
-        </td>
-        <td><p>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code>functionalize()</code>. This documentation is unfinished.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="interpolate_vec.html">interpolate_vec()</a></code> </p>
-        </td>
-        <td><p>Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_rt.html">plot_rt()</a></code> </p>
-        </td>
-        <td><p>Plot the Results of <code>estimate_rt()</code></p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="prep_linelist.html">prep_linelist()</a></code> </p>
-        </td>
-        <td><p>Prepare a Linelist for Rt Estimation</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="tidy_rt.html">tidy_rt()</a></code> </p>
-        </td>
-        <td><p>Tidy an <code>estimate_R</code> Object</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>.i</th>
+      <td><p>The index of the sample; all data up to this point will be used</p></td>
+    </tr>
+    <tr>
+      <th>.data</th>
+      <td><p>The data to sample</p></td>
+    </tr>
+    <tr>
+      <th>.ref</th>
+      <td><p>A reference decomposition used to calculate errors</p></td>
+    </tr>
+    <tr>
+      <th>period</th>
+      <td><p>The length of time to use in seasonal decomposition; can be a
+time-based definition (e.g. "1 week") or an integer number of days. If
+<code>NULL</code> or <code>"auto"</code>, <code>period</code> is set automatically using the tunable
+heuristics in the timetk package.</p></td>
+    </tr>
+    <tr>
+      <th>trend</th>
+      <td><p>The length of time to use in trend decomposition; can be a
+time-based definition (e.g. "1 month") or an integer number of days. If
+<code>NULL</code> or <code>"auto"</code>, <code>trend</code> is set automatically using the tunable
+heuristics in the timetk package.</p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A <code>tibble</code> containing the time index of the data, as well as columns
+<code>sample</code> (an indicator of the sample to which the data belongs), <code>horizon</code>,
+<code>observed</code>, <code>season</code>, <code>trend</code>, <code>remainder</code>, <code>season_error</code>, <code>trend_error</code>,
+and <code>remainder_error</code></p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code>
+  <a href='cv_decomposition.html'>cv_decomposition()</a>
+  </code></p></div>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

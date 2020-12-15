@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • covidModel</title>
+<title>Plot the Results of estimate_rt() — plot_rt • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,7 +46,11 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Plot the Results of estimate_rt() — plot_rt" />
+<meta property="og:description" content="plot_rt() plots the effective reproductive number over the course of the
+epidemic in Shelby County, along with reference dates and severity levels
+for comparison. Optionally, supplied unsmoothed Rt estimates to .rough_rt
+will add points for this estimates to the background for reference." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -66,7 +70,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -108,98 +112,50 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Plot the Results of <code>estimate_rt()</code></h1>
+    
+    <div class="hidden name"><code>plot_rt.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p><code>plot_rt()</code> plots the effective reproductive number over the course of the
+epidemic in Shelby County, along with reference dates and severity levels
+for comparison. Optionally, supplied unsmoothed Rt estimates to <code>.rough_rt</code>
+will add points for this estimates to the background for reference.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>plot_rt</span><span class='op'>(</span><span class='va'>.data</span>, start <span class='op'>=</span> <span class='st'>"2020-04-01"</span>, end <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span><span class='op'>(</span><span class='op'>)</span>, .rough_rt <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="calibrate_rt.html">calibrate_rt()</a></code> </p>
-        </td>
-        <td><p>Simple Bayesian Estimates of the Time-Varying Reproduction Number</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="deanomalize.html">deanomalize()</a></code> </p>
-        </td>
-        <td><p>Replace Anomalies with Expected Values Using the <code>anomalize</code> Package</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_rt.html">estimate_rt()</a></code> </p>
-        </td>
-        <td><p>(Boosted) Bayesian Estimates of Effective Reproduction Number</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_unboosted_rt.html">estimate_unboosted_rt()</a></code> </p>
-        </td>
-        <td><p>Run the Full Reproduction Number Modeling Pipeline</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="functionalize.html">functionalize()</a></code> </p>
-        </td>
-        <td><p>Integrate a Vector w.r.t. Time</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="interpolate.html">interpolate()</a></code> </p>
-        </td>
-        <td><p>Interpolate a Continuous Function of Time
-<code>interpolate()</code> creates a function of time from a time-indexed input object.
-It powers <code>functionalize()</code>. This documentation is unfinished.</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="interpolate_vec.html">interpolate_vec()</a></code> </p>
-        </td>
-        <td><p>Convert a Time-Indexed Vector to Function of Time (i.e. x = f(t))</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="plot_rt.html">plot_rt()</a></code> </p>
-        </td>
-        <td><p>Plot the Results of <code>estimate_rt()</code></p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="prep_linelist.html">prep_linelist()</a></code> </p>
-        </td>
-        <td><p>Prepare a Linelist for Rt Estimation</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="tidy_rt.html">tidy_rt()</a></code> </p>
-        </td>
-        <td><p>Tidy an <code>estimate_R</code> Object</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>.data</th>
+      <td><p>Rt estimates resulting from a call to
+<code><a href='estimate_rt.html'>estimate_rt()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td><p>The start date of the x axis</p></td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td><p>The end date of the x axis</p></td>
+    </tr>
+    <tr>
+      <th>.rough_rt</th>
+      <td><p>Unsmoothed Rt estimates, e.g. as produced by
+<code><a href='estimate_rt.html'>estimate_rt(trend = 1L, boost = FALSE)</a></code></p></td>
+    </tr>
     </table>
-  </div>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A <code>ggplot</code> object</p>
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

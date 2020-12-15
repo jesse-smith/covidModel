@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Prepare a Linelist for Rt Estimation — prep_linelist • covidModel</title>
+<title>Run the Full Reproduction Number Modeling Pipeline — estimate_unboosted_rt • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,14 +46,11 @@
 
 
 
-<meta property="og:title" content="Prepare a Linelist for Rt Estimation — prep_linelist" />
-<meta property="og:description" content="prep_linelist() converts a linelist to an incidence curve, replaces
-anomalous counts with the expected value, and decomposes the result into
-trend, seasonality, and remainder components. It also filters out reporting
-errors and truncates the data at the last fully observed incidence date
-(as defined by pct_reported, see that parameter for details). All
-calculations are performed on the log scale, but the result is returned on
-the input scale (assumed linear)." />
+<meta property="og:title" content="Run the Full Reproduction Number Modeling Pipeline — estimate_unboosted_rt" />
+<meta property="og:description" content="estimate_unboosted_rt() is a wrapper around
+prep_linelist() and
+estimate_rt(). It exists purely for
+convenience; see those functions for details." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -117,25 +114,24 @@ the input scale (assumed linear)." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Prepare a Linelist for Rt Estimation</h1>
+    <h1>Run the Full Reproduction Number Modeling Pipeline</h1>
     
-    <div class="hidden name"><code>prep_linelist.Rd</code></div>
+    <div class="hidden name"><code>estimate_unboosted_rt.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><code>prep_linelist()</code> converts a linelist to an incidence curve, replaces
-anomalous counts with the expected value, and decomposes the result into
-trend, seasonality, and remainder components. It also filters out reporting
-errors and truncates the data at the last fully observed incidence date
-(as defined by <code>pct_reported</code>, see that parameter for details). All
-calculations are performed on the log scale, but the result is returned on
-the input scale (assumed linear).</p>
+    <p><code>estimate_unboosted_rt()</code> is a wrapper around
+<code><a href='prep_linelist.html'>prep_linelist()</a></code> and
+<code><a href='calibrate_rt.html'>estimate_rt()</a></code>. It exists purely for
+convenience; see those functions for details.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>prep_linelist</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>estimate_unboosted_rt</span><span class='op'>(</span>
   <span class='va'>.data</span>,
   .collection_date <span class='op'>=</span> <span class='st'>"collection_date"</span>,
   .report_date <span class='op'>=</span> <span class='st'>"report_date"</span>,
+  serial_interval_mean <span class='op'>=</span> <span class='fl'>6</span>,
+  serial_interval_sd <span class='op'>=</span> <span class='fl'>4.17</span>,
   start_date <span class='op'>=</span> <span class='st'>"2020-03-12"</span>,
   trend <span class='op'>=</span> <span class='st'>"30 days"</span>,
   period <span class='op'>=</span> <span class='st'>"7 days"</span>,
@@ -161,6 +157,16 @@ collection date of the observed case</p></td>
       <th>.report_date</th>
       <td><p><code>&lt;tidy-select&gt;</code> A <code>Date</code> column to use as the report
 date of the observed case</p></td>
+    </tr>
+    <tr>
+      <th>serial_interval_mean</th>
+      <td><p>The average number of days between infection of a
+primary case and a secondary case</p></td>
+    </tr>
+    <tr>
+      <th>serial_interval_sd</th>
+      <td><p>The standard deviation of the number of days
+between infection of a primary case and a secondary case</p></td>
     </tr>
     <tr>
       <th>start_date</th>
@@ -214,9 +220,14 @@ probability that an individual data point is labeled an anomaly.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code>tibble</code> with a date column (named the same as the column specified
-by <code>.collection_date</code>) and <code>observed</code>, <code>season</code>, <code>trend</code>, and <code>remainder</code>
-columns. All numeric columns have outlier replaced.</p>
+    <p>A <code>tibble</code> with columns <code>.t</code>, <code>.pred</code> (the median), <code>.pred_lower</code>
+(the lower bound of the 95% credible interval), <code>.pred_upper</code>
+(the upper bound of the 95% credible interval), <code>.mean</code> (the average), and
+<code>.cv</code> (the coefficient of variation)</p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='prep_linelist.html'>prep_linelist()</a></code>,
+<code><a href='calibrate_rt.html'>calibrate_rt()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

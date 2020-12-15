@@ -164,16 +164,16 @@ day since that date).</p></td>
     <tr>
       <th>trend</th>
       <td><p>The length of time to use in trend decomposition; can be a
-time-based definition (e.g. "1 month") or an integer number of days. The
-default is <code>"30 days"</code>; however, if <code>NULL</code> or <code>"auto"</code>, <code>trend</code> is set
-automatically using the tunable heuristics in the timetk package.</p></td>
+time-based definition (e.g. "1 month") or an integer number of days. If
+<code>NULL</code> or <code>"auto"</code>, <code>trend</code> is set automatically using the tunable
+heuristics in the timetk package.</p></td>
     </tr>
     <tr>
       <th>period</th>
       <td><p>The length of time to use in seasonal decomposition; can be a
-time-based definition (e.g. "1 week") or an integer number of days. The
-default is <code>"7 days"</code>; however, if <code>NULL</code> or <code>"auto"</code>, <code>period</code> is set
-automatically using the tunable heuristics in the timetk package.</p></td>
+time-based definition (e.g. "1 week") or an integer number of days. If
+<code>NULL</code> or <code>"auto"</code>, <code>period</code> is set automatically using the tunable
+heuristics in the timetk package.</p></td>
     </tr>
     <tr>
       <th>delay_period</th>
@@ -191,11 +191,11 @@ between sensitivity and robustness in Shelby County data.</p></td>
     </tr>
     <tr>
       <th>cutoff</th>
-      <td><p>The cutoff value for outlier detection; controls both the
-maximum percentage of data points that may be considered outliers, as well
+      <td><p>The cutoff value for anomaly detection; controls both the
+maximum percentage of data points that may be considered anomalies, as well
 as the critical value for the Generalized Extreme Studentized Deviate test
-used to detect the outliers. Can be interpreted as the desired maximum
-likelihood that an individual data point is labelled an outlier.</p></td>
+used to detect the anomalies. Can be interpreted as the desired maximum
+probability that an individual data point is labeled an anomaly.</p></td>
     </tr>
     <tr>
       <th>plot_anomalies</th>
@@ -213,7 +213,7 @@ associated with anomaly detection</p>
 
     <div class='dont-index'><p>Component functions
 <code><a href='clean_linelist.html'>clean_linelist()</a></code> and
-<code>deanomalize()</code>, as well as
+<code><a href='deanomalize.html'>deanomalize()</a></code>, as well as
 higher-level function
 <code><a href='prep_linelist.html'>prep_linelist()</a></code></p></div>
 
