@@ -55,4 +55,3 @@ usual.
 \code{\link[base:expm1]{expm1()}}, calling function
 \code{\link[covidModel:prep_linelist]{prep_linelist()}}
 }
-\keyword{internal}

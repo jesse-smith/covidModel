@@ -20,8 +20,6 @@
 #' @seealso \code{\link[covidModel:prep_linelist]{prep_linelist()}},
 #'   \code{\link[covidModel:cv_decomposition]{cv_decomposition()}}
 #'
-#' @keywords internal
-#'
 #' @export
 cv_linelist_decomposition <- function(
   .data,
@@ -93,8 +91,6 @@ cv_linelist_decomposition <- function(
 #'   \code{
 #'   \link[covidModel:cv_linelist_decomposition]{cv_linelist_decomposition()}
 #'   }
-#'
-#' @keywords internal
 #'
 #' @export
 cv_decomposition <- function(
@@ -182,8 +178,6 @@ cv_decomposition <- function(
 #' @seealso \code{
 #'   \link[covidModel:cv_decomposition]{cv_decomposition()}
 #'   }
-#'
-#' @keywords internal
 #'
 #' @export
 validate_decomposition <- function(

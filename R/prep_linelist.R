@@ -104,8 +104,6 @@ prep_linelist <- function(
 #'   higher-level function
 #'   \code{\link[covidModel:prep_linelist]{prep_linelist()}}
 #'
-#' @keywords internal
-#'
 #' @export
 prep_linelist_decomposition <- function(
   .data,
@@ -169,8 +167,6 @@ prep_linelist_decomposition <- function(
 #'   \code{
 #'   \link[covidModel:prep_linelist_decomposition]{prep_linelist_decomposition()}
 #'   }, \code{\link[covidModel:prep_linelist]{prep_linelist()}}
-#'
-#' @keywords internal
 #'
 #' @export
 clean_linelist <- function(
@@ -277,8 +273,6 @@ clean_linelist <- function(
 #' @seealso \code{\link[anomalize:time_decompose]{time_decompose()}},
 #'   \code{\link[base:expm1]{expm1()}}, calling function
 #'   \code{\link[covidModel:prep_linelist]{prep_linelist()}}
-#'
-#' @keywords internal
 #'
 #' @export
 expm1_decomposed <- function(.data) {

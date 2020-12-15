@@ -85,4 +85,3 @@ for each future-conditional time point. Bootstrap weights are calculated
 using a geometric sequence with the first-order autoregressive coefficient
 as the discount factor.
 }
-\keyword{internal}

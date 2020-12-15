@@ -123,7 +123,7 @@ calibrate_rt <- function(
 #' @param t The quoted name of a date column corresponding to the observations
 #'   in `incid`
 #'
-#' @keywords internal
+#' @noRd
 prep_data_rt <- function(
   .data,
   .incid = NULL,
@@ -142,6 +142,15 @@ prep_data_rt <- function(
   }
 }
 
+#' Prepare the `config` Argument for `estimate_R()`
+#'
+#' @inheritParams calibrate_rt
+#'
+#' @param .data An incidence curve
+#'
+#' @return A list of configuration arguments
+#'
+#' @noRd
 prep_config_rt <- function(
   .data,
   period = 1L,

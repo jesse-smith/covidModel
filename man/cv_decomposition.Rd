@@ -59,4 +59,3 @@ and the higher-level function
   \link[covidModel:cv_linelist_decomposition]{cv_linelist_decomposition()}
   }
 }
-\keyword{internal}

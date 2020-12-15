@@ -77,4 +77,3 @@ Component functions
 higher-level function
 \code{\link[covidModel:prep_linelist]{prep_linelist()}}
 }
-\keyword{internal}

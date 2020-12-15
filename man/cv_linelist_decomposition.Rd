@@ -81,4 +81,3 @@ for details.
 \code{\link[covidModel:prep_linelist]{prep_linelist()}},
 \code{\link[covidModel:cv_decomposition]{cv_decomposition()}}
 }
-\keyword{internal}

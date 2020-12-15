@@ -41,4 +41,3 @@ designed to be used as a mapping function passed to
   \link[covidModel:cv_decomposition]{cv_decomposition()}
   }
 }
-\keyword{internal}

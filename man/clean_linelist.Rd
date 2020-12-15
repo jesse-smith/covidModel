@@ -54,4 +54,3 @@ Higher-level functions
   \link[covidModel:prep_linelist_decomposition]{prep_linelist_decomposition()}
   }, \code{\link[covidModel:prep_linelist]{prep_linelist()}}
 }
-\keyword{internal}
