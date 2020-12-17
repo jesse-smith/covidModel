@@ -1,5 +1,10 @@
 new_covidmodel_rt <- function(x, serial_interval, nrow) {
-  tibble::new_tibble(x, serial_interval = serial_interval, nrow = nrow)
+  tibble::new_tibble(
+    x,
+    serial_interval = serial_interval,
+    nrow = nrow,
+    class = "covidmodel_rt"
+  )
 }
 
 validate_covidmodel_rt <- function(x) {

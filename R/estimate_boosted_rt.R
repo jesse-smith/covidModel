@@ -48,7 +48,8 @@ estimate_boosted_rt <- function(
         period = period,
         delay_period = delay_period,
         pct_reported = pct_reported,
-        cutoff = cutoff
+        cutoff = cutoff,
+        plot_anomalies = FALSE
       )
     )
   )
@@ -77,7 +78,7 @@ estimate_boosted_rt <- function(
       pct_reported = pct_reported,
       cutoff = cutoff,
       plot_anomalies = plot_anomalies
-    ) %T>%
+    ) %>%
     # Apply rolling cross-validation to Rt estimates of the above
     cv_rt(
       .ref = reference,
@@ -154,7 +155,7 @@ cv_rt <- function(
 #' @export
 boost_rt <- function(.data, .ref) {
   .data %T>%
-    {rlang::inform("Boosting expected value & uncertainty estimates...")} %>%
+    {rlang::inform("Boosting uncertainty estimates...")} %>%
     # Reduce results to single tibble
     reduce_rt_error() %>%
     # Weight results by time and "forecast" horizon
@@ -407,7 +408,7 @@ summarize_rt_error <- function(.data, .ref) {
   .data %>%
     # Compute summary statistics of "forecast" over full sample
     dplyr::summarize(
-      .pred = stats::median(.data[[".distr_sample"]], na.rm = TRUE),
+      # .pred = stats::median(.data[[".distr_sample"]], na.rm = TRUE),
       .pred_lower = stats::quantile(
         .data[[".distr_sample"]],
         p = 0.025,
@@ -422,7 +423,8 @@ summarize_rt_error <- function(.data, .ref) {
       ),
       .mean = mean(.data[[".distr_sample"]], na.rm = TRUE),
       .cv = stats::sd(.data[[".distr_sample"]], na.rm = TRUE) / .data[[".mean"]]
-    )
+    ) %>%
+    dplyr::select(-".mean")
 }
 
 #' Bind Boosting Results to Stable Rt Estimates
@@ -443,8 +445,23 @@ bind_boosted_rt <- function(.data, .ref) {
 
   replace_obs <- vec_in(.ref[[".t"]], .data[[".t"]])
 
+  # Get incidence for boosted time points
+  incid <- dplyr::select(.ref, c(".t", ".incid", ".pred", ".mean"))
+
+
+  boosted_data <- dplyr::left_join(.data, incid, by = ".t")
+
   .ref %>%
     dplyr::filter(!replace_obs) %>%
-    dplyr::bind_rows(.data) %>%
+    dplyr::bind_rows(boosted_data) %>%
+    dplyr::relocate(
+      ".t",
+      ".incid",
+      ".pred",
+      ".pred_lower",
+      ".pred_upper",
+      ".mean",
+      ".cv"
+    ) %>%
     dplyr::arrange(.data[[".t"]])
 }
