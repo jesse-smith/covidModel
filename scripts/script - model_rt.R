@@ -29,6 +29,38 @@ save_plot(
 
 # Get current infectious activity
 
-simulate_infections(rt, h = 365) %>% plot()
-  vec_slice(i = seq(vec_size(.) - 49, vec_size(.), 1)) %>%
-  cumsum()
+current_rt <- rt %>%
+  dplyr::slice_tail(n = 1) %>%
+  dplyr::pull(".pred") %>%
+  round(digits = 2) %>%
+  as.character()
+
+active <- 6049 %>% format(big.mark = ",")
+
+rt_tbl_val <- simulate_infections(rt, h = 30) %>%
+  vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
+  cumsum() %>%
+  vec_slice(i = vec_size(.) - c(19, 9, 0)) %>%
+  round() %>%
+  format(big.mark = ",") %>%
+  stringr::str_squish() %>%
+  {paste0("**", ., "**")} %>%
+  purrr::prepend(c(current_rt, active))
+
+rt_tbl_nm <- c(
+  "Rt",
+  "Active Cases",
+  "**Cases over next 10 Days**",
+  "**Cases over next 20 Days**",
+  "**Cases over next 30 Days**"
+)
+rt_tbl <- tibble::tibble(`Cases` = rt_tbl_nm, Count = rt_tbl_val)
+
+title <- paste0("Implications of Current Rt and Active Cases")
+gt::gt(rt_tbl) %>%
+  gt::tab_header(title = title) %>%
+  gt::opt_row_striping() %>%
+  gt::cols_label(Cases = "", Count = "") %>%
+  gt::fmt_markdown(columns = dplyr::everything(), rows = c(F, F, T,T,T)) %T>%
+  {show(.)} %>%
+  gt::gtsave(paste0("figs/rt_table_", Sys.Date(), ".png"))
