@@ -3,18 +3,13 @@
 #'
 #' `bsts_trend()` is a generic that wraps the various trend models in the
 #' bsts package into a user-friendly interface. Model-specific arguments are
-#' passed via `...`; see the four methods (
-#' \code{\link[bsts_trend.semilocal]{"semilocal"}},
-#' \code{\link[bsts_trend.local]{"local"}},
-#' \code{\link[bsts_trend.robust]{"robust"}}, and
-#' \code{\link[bsts_trend.level]{"level"}}
-#' ) for details of those arguments.
+#' passed via `...`; see the four methods for details of those arguments.
 #'
 #' @param state A list of state components you wish to add to. If omitted,
 #'   an empty list will be assumed. This argument is named `state.specification`
 #'   in bsts.
 #'
-#' @param y The time series to be modeled, as a numeric vector. Unlike bsts,
+#' @param .data The time series to be modeled, as a numeric vector. Unlike bsts,
 #'   this is piped forward as part of the state if defined, so you only need
 #'   to specify it once (at the beginning of the model-building pipeline).
 #'
@@ -32,6 +27,11 @@
 #'  \code{\list[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}},
 #'  \code{\list[bsts:AddLocalLevel]{AddLocalLevel()}}
 #'
+#' @aliases bsts_trend.semilocal bsts_trend.local bsts_trend.robust
+#'   bsts_trend.level
+#'
+#' @family bsts
+#'
 #' @export
 bsts_trend <- function(
   state = list(),
@@ -40,17 +40,15 @@ bsts_trend <- function(
   ...
 ) {
 
-  method <- rlang::arg_match(method)[[1]]
+  method <- rlang::arg_match(method)[[1L]]
 
-  attr(method, which = "class") <- method
+  state <- as_bsts_trend(state, class = method)
 
-  UseMethod("bsts_trend", method)
+  UseMethod("bsts_trend", state)
 
 }
 
-#' Semilocal Linear Trend State Component
-#'
-#' @inherit bsts::semilocal.linear.trend
+#' @rdname bsts_trend
 #'
 #' @export
 bsts_trend.semilocal <- function(
@@ -67,10 +65,13 @@ bsts_trend.semilocal <- function(
   initial.y = NULL
 ) {
 
-  show(.data)
+  state.spec <- state %>%
+    # validate_bsts_trend_semilocal() %>%
+    set_class("list") %>%
+    inset2(".data", NULL)
 
   bsts::AddSemilocalLinearTrend(
-    state.specification = inset2(state, ".data", NULL),
+    state.specification = state.spec,
     y = .data,
     level.sigma.prior = level.sigma.prior,
     slope.mean.prior = slope.mean.prior,
@@ -84,9 +85,7 @@ bsts_trend.semilocal <- function(
     inset2(".data", .data)
 }
 
-#' Local Linear Trend State Component
-#'
-#' @inherit bsts::add.local.linear.trend
+#' @rdname bsts_trend
 #'
 #' @export
 bsts_trend.local <- function(
@@ -100,8 +99,14 @@ bsts_trend.local <- function(
   sdy = NULL,
   initial.y = NULL
 ) {
+
+  state.spec <- state %>%
+    # validate_bsts_trend_local() %>%
+    set_class("list") %>%
+    inset2(".data", NULL)
+
   bsts::AddLocalLinearTrend(
-    state.specification = inset2(state, ".data", NULL),
+    state.specification = state.spec,
     y = .data,
     level.sigma.prior = level.sigma.prior,
     slope.sigma.prior = slope.sigma.prior,
@@ -113,9 +118,7 @@ bsts_trend.local <- function(
     inset2(".data", .data)
 }
 
-#' Robust Local Linear Trend State Component
-#'
-#' @inherit bsts::add.student.local.linear.trend
+#' @rdname bsts_trend
 #'
 #' @export
 bsts_trend.robust <- function(
@@ -132,9 +135,15 @@ bsts_trend.robust <- function(
   sdy = NULL,
   initial.y = NULL
 ) {
+
+  state.spec <- state %>%
+    # validate_bsts_trend_robust() %>%
+    set_class("list") %>%
+    inset2(".data", NULL)
+
   bsts::AddStudentLocalLinearTrend(
-    state.specification = inset2(state, ".data", NULL),
-    y,
+    state.specification = state.spec,
+    y = .data,
     save.weights = save.weights,
     level.sigma.prior = level.sigma.prior,
     level.nu.prior = level.nu.prior,
@@ -148,9 +157,7 @@ bsts_trend.robust <- function(
     inset2(".data", .data)
 }
 
-#' Local Level Trend State Component
-#'
-#' @inherit bsts::add.local.level
+#' @rdname bsts_trend
 #'
 #' @export
 bsts_trend.level <- function(
@@ -162,9 +169,15 @@ bsts_trend.level <- function(
   sdy = NULL,
   initial.y = NULL
 ) {
+
+  state.spec <- state %>%
+    # validate_bsts_trend_level() %>%
+    set_class("list") %>%
+    inset2(".data", NULL)
+
   bsts::AddLocalLevel(
-    state.specification = inset2(state, ".data", NULL),
-    y = y,
+    state.specification = state.spec,
+    y = .data,
     sigma.prior = sigma.prior,
     initial.state.prior = initial.state.prior,
     sdy = sdy,

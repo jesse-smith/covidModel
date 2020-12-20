@@ -1,4 +1,47 @@
-
+#' Estimate Reporting Delay Using a Simple Moving Average
+#'
+#' `estimate_delay()` estimates the time it takes for a given percentage of
+#' samples collected on a certain date to be reported.
+#'
+#' To estimate reporting delay, `estimate_delay()` calculates quantiles of the
+#' delay distribution corresponding to `pct` for each `.collection_date` in the
+#' data. If reporting is complete, these quantiles are interpretable as the
+#' time needed for `pct` samples to be reported from a given date. If reporting
+#' is incomplete, these will be biased towards the portion of the delay
+#' distribution that is prioritized in the reporting process. In SCHD data,
+#' cases have been mostly processed in temporal order, so this bias is
+#' upwards (towards longer delays).
+#'
+#' Next, quantiles are weighted by the sample size on each date, and a rolling
+#' average is calculated with a window equal to `period`. This is the
+#' continuous domain equivalent of calculating the quantile over `period` days.
+#'
+#' Finally, the averages for `t-period` to `t-1` are compared to time between
+#' `today` and each date `t`. If the average is larger than this time
+#' difference, reporting is considered incomplete; otherwise, reporting is
+#' considered complete.
+#'
+#' @inheritParams prep_linelist
+#'
+#' @param period The number of days to average over for the rolling comparison
+#'
+#' @param today The date to consider "today"
+#'
+#' @param rtn What to return. By default, this is a single-row `tibble`
+#'   containing the last complete `.collection_date`; it can also return either
+#'   incomplete dates only or all dates. All return values are tibbles with
+#'   the same columns; see `Value` for details.
+#'
+#' @param min_dt The minimum date to consider- set to the first reporting date
+#'   in SCHD data by default
+#'
+#' @param quiet Should information on observations excluded from the estimation
+#'   be shown?
+#'
+#' @return A `tibble` containing one row per date and columns for
+#'   `.collection_date`, `prior_delay`, `delay`, and `incomplete` status
+#'
+#' @export
 estimate_delay <- function(
   .data,
   .collection_date = collection_date,

@@ -1,31 +1,3 @@
-#' Bayesian Structural Time Series: Fit Model
-#'
-#' Fit a bsts model.
-#'
-#' @param state A list specifying the state sub-models
-#'
-#' @param .data The data to use for estimation
-#'
-#' @param iterations The number of MCMC iterations to perform
-#'
-#' @param ... Futher arguments to pass to
-#'   \code{\link[bsts:bsts]{bsts()}}
-#'
-#' @export
-bsts_fit <- function(
-  state,
-  .data = state[[".data"]],
-  iterations = 1e4,
-  ...
-) {
-  bsts::bsts(
-    state.specification = inset2(state, ".data", NULL),
-    formula = .data,
-    niter = iterations,
-    ...
-  )
-}
-
 decomp_bsts <- function(.bsts, burn = 0.2) {
 
   likelihood = extract_likelihood_bsts(.bsts, burn = burn)
@@ -41,31 +13,6 @@ decomp_bsts <- function(.bsts, burn = 0.2) {
       likelihood = likelihood
     )
   )
-}
-
-extract_likelihood_bsts <- function(.bsts, burn = 0.2) {
-  .bsts[["log.likelihood"]] %>%
-    tibble::as_tibble() %>%
-    dplyr::slice_tail(prop = 1 - burn) %>%
-    dplyr::pull(1L) %>%
-    exp()
-}
-
-extract_sd_bsts <- function(.bsts, burn = 0.2, likelihood = NULL) {
-
-  if (rlang::is_null(likelihood)) {
-    likelihood <- extract_likelihood_bsts(.bsts, burn = burn)
-  }
-
-  .bsts[["one.step.prediction.errors"]] %>%
-    tibble::as_tibble() %>%
-    dplyr::slice_tail(prop = 1 - burn) %>%
-    abs() %>%
-    dplyr::summarize(
-      dplyr::across(.fns = ~ weighted.mean(.x, w = likelihood))
-    ) %>%
-    as.matrix() %>%
-    mean()
 }
 
 extract_trend_bsts <- function(.bsts, burn = 0.2, likelihood = NULL) {

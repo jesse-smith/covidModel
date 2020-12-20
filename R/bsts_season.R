@@ -2,17 +2,14 @@
 #'
 #' `bsts_season()` is a generic that wraps the two seasonal models in the
 #' bsts package into a user-friendly interface. Model-specific arguments are
-#' passed via `...`; see the two methods (
-#' \code{\link[bsts_seasonal.regression]{"regression"}} and
-#' \code{\link[bsts_seasonal.harmonic]{"harmonic"}}
-#' ) for details of those arguments. `bsts_seasonal()` also uses the timetk
-#' package to make model specification easier or, if you prefer, automate it
-#' entirely based on tunable heuristics.
+#' passed via `...`; see the two methods for details of those arguments.
+#' `bsts_seasonal()` also uses the timetk package to make model specification
+#' easier or, if you prefer, automate it entirely based on tunable heuristics.
 #'
 #' @inheritParams bsts_trend
 #'
 #' @param method Which seasonal model to use. Choose from `"regression"` or
-#'   `"harmonic"`.
+#'   `"harmonic"`; `"dynamic"` will be implemented in the future.
 #'
 #' @param period The length of a full seasonal cycle. Either a time-based definition (e.g. "1 week")
 #'   or the number of observations in a season (e.g. 7). Supplying a
@@ -26,25 +23,34 @@
 #'   observation within a period. Can be supplied in the same
 #'   way as `period`. This parameter is ignored for
 #'   `method = "harmonic"`.
+#'
+#' @return A list with the updated state specification of a bsts model
+#'
+#' @aliases bsts_season.regression bsts_season.harmonic
+#'
+#' @family bsts
+#'
+#' @export
 bsts_season <- function(
   state = list(),
   .data = state[[".data"]],
-  # method = c("regression", "harmonic"),
+  method = c("regression", "harmonic", "dynamic"),
   period = NULL,
   season = NULL,
   ...
 ) {
-  bsts_season_regression(
-    state = state,
-    .data = state[[".data"]],
-    period = period,
-    season = season,
-    ...
-  )
+
+  method <- rlang::arg_match(method)[[1L]]
+
+  state <- as_bsts_season(state, class = method)
+
+  UseMethod("bsts_season", state)
 }
 
+#' @rdname bsts_season
+#'
 #' @export
-bsts_season_regression <- function(
+bsts_season.regression <- function(
   state = list(),
   .data = state[[".data"]],
   method = "regression",
@@ -73,8 +79,13 @@ bsts_season_regression <- function(
     period = season
   )
 
+  state.spec <- state %>%
+    # validate_bsts_season_regression() %>%
+    set_class("list") %>%
+    inset2(".data", NULL)
+
   bsts::AddSeasonal(
-    state.specification = inset2(state, ".data", NULL),
+    state.specification = state.spec,
     y = .data,
     nseasons = period,
     season.duration = season,
@@ -85,7 +96,9 @@ bsts_season_regression <- function(
     inset2(".data", .data)
 }
 
-#' Method dispatch not working
+#' @rdname bsts_season
+#'
+#' @export
 bsts_season.harmonic <- function(
   state = list(),
   .data = state[[".data"]],
@@ -105,8 +118,14 @@ bsts_season.harmonic <- function(
     rlang::warn("`season` is ignored when `method = 'harmonic'`")
   }
 
+  state.spec <- state %>%
+    # validate_bsts_season_harmonic() %>%
+    set_class("list") %>%
+    inset2(".data", NULL)
+
+
   bsts::AddTrig(
-    state.specification = inset2(state, ".data", NULL),
+    state.specification = state.spec,
     y = .data,
     period = period,
     frequencies = 1L,
@@ -118,27 +137,27 @@ bsts_season.harmonic <- function(
 }
 
 #' Unfinished
-bsts_season.dynamic <- function(
-  state = list(),
-  .data = state[[".data"]],
-  method = "dynamic",
-  period = NULL,
-  season = NULL,
-  ar = TRUE,
-  sigma.prior = NULL,
-  na.action = na.exclude,
-  ...
-) {
-
-  ar <- rlang::arg_match(ar, values = c(TRUE, FALSE))
-
-  bsts::AddDynamicRegression(
-    state.specification = inset2(state, ".data", NULL),
-    formula = .data,
-    data = .data,
-    model.options = coef_model,
-    na.action = na.action,
-    ...
-  ) %>%
-    inset2(".data", .data)
-}
+# bsts_season.dynamic <- function(
+#   state = list(),
+#   .data = state[[".data"]],
+#   method = "dynamic",
+#   period = NULL,
+#   season = NULL,
+#   ar = TRUE,
+#   sigma.prior = NULL,
+#   na.action = na.exclude,
+#   ...
+# ) {
+#
+#   ar <- rlang::arg_match(ar, values = c(TRUE, FALSE))
+#
+#   bsts::AddDynamicRegression(
+#     state.specification = inset2(state, ".data", NULL),
+#     formula = .data,
+#     data = .data,
+#     model.options = coef_model,
+#     na.action = na.action,
+#     ...
+#   ) %>%
+#     inset2(".data", .data)
+# }
