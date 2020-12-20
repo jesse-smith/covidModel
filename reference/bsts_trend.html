@@ -49,12 +49,7 @@
 <meta property="og:title" content="Bayesian Structural Time Series: Trend Components — bsts_trend" />
 <meta property="og:description" content="bsts_trend() is a generic that wraps the various trend models in the
 bsts package into a user-friendly interface. Model-specific arguments are
-passed via ...; see the four methods (
-&quot;semilocal&quot;,
-&quot;local&quot;,
-&quot;robust&quot;, and
-&quot;level&quot;
-) for details of those arguments." />
+passed via ...; see the four methods for details of those arguments." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -126,12 +121,7 @@ passed via ...; see the four methods (
     <div class="ref-description">
     <p><code>bsts_trend()</code> is a generic that wraps the various trend models in the
 bsts package into a user-friendly interface. Model-specific arguments are
-passed via <code>...</code>; see the four methods (
-<code>"semilocal"</code>,
-<code>"local"</code>,
-<code>"robust"</code>, and
-<code>"level"</code>
-) for details of those arguments.</p>
+passed via <code>...</code>; see the four methods for details of those arguments.</p>
     </div>
 
     <pre class="usage"><span class='fu'>bsts_trend</span><span class='op'>(</span>
@@ -139,6 +129,61 @@ passed via <code>...</code>; see the four methods (
   .data <span class='op'>=</span> <span class='va'>state</span><span class='op'>[[</span><span class='st'>".data"</span><span class='op'>]</span><span class='op'>]</span>,
   method <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"semilocal"</span>, <span class='st'>"local"</span>, <span class='st'>"robust"</span>, <span class='st'>"level"</span><span class='op'>)</span>,
   <span class='va'>...</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for semilocal</span>
+<span class='fu'>bsts_trend</span><span class='op'>(</span>
+  state <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  .data <span class='op'>=</span> <span class='va'>state</span><span class='op'>[[</span><span class='st'>".data"</span><span class='op'>]</span><span class='op'>]</span>,
+  method <span class='op'>=</span> <span class='st'>"semilocal"</span>,
+  level.sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  slope.mean.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  slope.ar1.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  slope.sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.level.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.slope.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sdy <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.y <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for local</span>
+<span class='fu'>bsts_trend</span><span class='op'>(</span>
+  state <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  .data <span class='op'>=</span> <span class='va'>state</span><span class='op'>[[</span><span class='st'>".data"</span><span class='op'>]</span><span class='op'>]</span>,
+  method <span class='op'>=</span> <span class='st'>"local"</span>,
+  level.sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  slope.sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.level.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.slope.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sdy <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.y <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for robust</span>
+<span class='fu'>bsts_trend</span><span class='op'>(</span>
+  state <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  .data <span class='op'>=</span> <span class='va'>state</span><span class='op'>[[</span><span class='st'>".data"</span><span class='op'>]</span><span class='op'>]</span>,
+  method <span class='op'>=</span> <span class='st'>"robust"</span>,
+  save.weights <span class='op'>=</span> <span class='cn'>FALSE</span>,
+  level.sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  level.nu.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  slope.sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  slope.nu.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.level.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.slope.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sdy <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.y <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for level</span>
+<span class='fu'>bsts_trend</span><span class='op'>(</span>
+  state <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span>,
+  .data <span class='op'>=</span> <span class='va'>state</span><span class='op'>[[</span><span class='st'>".data"</span><span class='op'>]</span><span class='op'>]</span>,
+  method <span class='op'>=</span> <span class='st'>"level"</span>,
+  sigma.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.state.prior <span class='op'>=</span> <span class='cn'>NULL</span>,
+  sdy <span class='op'>=</span> <span class='cn'>NULL</span>,
+  initial.y <span class='op'>=</span> <span class='cn'>NULL</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -177,7 +222,9 @@ to specify it once (at the beginning of the model-building pipeline).</p></td>
 <code>[bsts:AddSemilocalLinearTrend]{AddSemilocalLinearTrend()}</code>,
 <code>[bsts:AddLocalLinearTrend]{AddLocalLinearTrend()}</code>,
 <code>[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}</code>,
-<code>[bsts:AddLocalLevel]{AddLocalLevel()}</code></p></div>
+<code>[bsts:AddLocalLevel]{AddLocalLevel()}</code></p>
+<p>Other bsts: 
+<code><a href='bsts_season.html'>bsts_season</a>()</code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
