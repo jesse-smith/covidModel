@@ -196,6 +196,12 @@ an empty list will be assumed. This argument is named <code>state.specification<
 in bsts.</p></td>
     </tr>
     <tr>
+      <th>.data</th>
+      <td><p>The time series to be modeled, as a numeric vector. Unlike bsts,
+this is piped forward as part of the state if defined, so you only need
+to specify it once (at the beginning of the model-building pipeline).</p></td>
+    </tr>
+    <tr>
       <th>method</th>
       <td><p>Which trend model to use. Choose from <code>"semilocal"</code>
 (the default), <code>"local"</code>, <code>"robust"</code>, or <code>"level"</code>.</p></td>
@@ -204,12 +210,6 @@ in bsts.</p></td>
       <th>...</th>
       <td><p>Additional arguments to pass to methods; see the methods above
 for details</p></td>
-    </tr>
-    <tr>
-      <th>y</th>
-      <td><p>The time series to be modeled, as a numeric vector. Unlike bsts,
-this is piped forward as part of the state if defined, so you only need
-to specify it once (at the beginning of the model-building pipeline).</p></td>
     </tr>
     </table>
 

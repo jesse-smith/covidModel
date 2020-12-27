@@ -171,6 +171,12 @@ an empty list will be assumed. This argument is named <code>state.specification<
 in bsts.</p></td>
     </tr>
     <tr>
+      <th>.data</th>
+      <td><p>The time series to be modeled, as a numeric vector. Unlike bsts,
+this is piped forward as part of the state if defined, so you only need
+to specify it once (at the beginning of the model-building pipeline).</p></td>
+    </tr>
+    <tr>
       <th>method</th>
       <td><p>Which seasonal model to use. Choose from <code>"regression"</code> or
 <code>"harmonic"</code>; <code>"dynamic"</code> will be implemented in the future.</p></td>

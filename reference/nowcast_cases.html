@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Remove Incomplete, Illogical, and Missing Data from an Incidence Linelist — clean_linelist • covidModel</title>
+<title>Nowcast Cases by Specimen Collection Date — nowcast_cases • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,13 +46,13 @@
 
 
 
-<meta property="og:title" content="Remove Incomplete, Illogical, and Missing Data from an Incidence Linelist — clean_linelist" />
-<meta property="og:description" content="clean_linelist() creates a cleaned version of an incidence linelist with
-collection and report dates. It removes observations with collection dates
-that have not been fully reported (as determined by pct_reported), as well
-as observations with missing collection dates or collection dates prior to
-start_date. It then checks that all report dates are on or after the
-corresponding collection dates and removes observations where this is untrue." />
+<meta property="og:title" content="Nowcast Cases by Specimen Collection Date — nowcast_cases" />
+<meta property="og:description" content="nowcast_cases() predicts the number of cases expected through the current
+date given a linelist of cases with collection and report dates. It uses
+estimate_delay() to determine the
+last complete collection date and forecasts from that point. Cases are
+predicted by a weighted ensemble of two log-linear structural time series
+models with semilocal and robust (Student-t) trends." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -116,27 +116,27 @@ corresponding collection dates and removes observations where this is untrue." /
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Remove Incomplete, Illogical, and Missing Data from an Incidence Linelist</h1>
+    <h1>Nowcast Cases by Specimen Collection Date</h1>
     
-    <div class="hidden name"><code>clean_linelist.Rd</code></div>
+    <div class="hidden name"><code>nowcast_cases.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><code>clean_linelist()</code> creates a cleaned version of an incidence linelist with
-collection and report dates. It removes observations with collection dates
-that have not been fully reported (as determined by <code>pct_reported</code>), as well
-as observations with missing collection dates or collection dates prior to
-<code>start_date</code>. It then checks that all report dates are on or after the
-corresponding collection dates and removes observations where this is untrue.</p>
+    <p><code>nowcast_cases()</code> predicts the number of cases expected through the current
+date given a linelist of cases with collection and report dates. It uses
+<code><a href='estimate_delay.html'>estimate_delay()</a></code> to determine the
+last complete collection date and forecasts from that point. Cases are
+predicted by a weighted ensemble of two log-linear structural time series
+models with semilocal and robust (Student-t) trends.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>clean_linelist</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>nowcast_cases</span><span class='op'>(</span>
   <span class='va'>.data</span>,
   .collection_date <span class='op'>=</span> <span class='st'>"collection_date"</span>,
   .report_date <span class='op'>=</span> <span class='st'>"report_date"</span>,
-  start_date <span class='op'>=</span> <span class='st'>"2020-03-12"</span>,
-  delay_period <span class='op'>=</span> <span class='fl'>14L</span>,
-  pct_reported <span class='op'>=</span> <span class='fl'>0.9</span>
+  today <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span><span class='op'>(</span><span class='op'>)</span>,
+  iterations <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>ceiling</a></span><span class='op'>(</span><span class='fl'>0.5</span> <span class='op'>*</span> <span class='fl'>10000</span><span class='op'>/</span><span class='op'>(</span><span class='fl'>1</span> <span class='op'>-</span> <span class='va'>burn</span><span class='op'>)</span><span class='op'>)</span>,
+  burn <span class='op'>=</span> <span class='fl'>0.2</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -144,50 +144,33 @@ corresponding collection dates and removes observations where this is untrue.</p
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>.data</th>
-      <td><p>A data frame containing one incident observation per row</p></td>
+      <td><p>A linelist of incidence cases as a data frame</p></td>
     </tr>
     <tr>
       <th>.collection_date</th>
-      <td><p><code>&lt;tidy-select&gt;</code> A <code>Date</code> column to use as the
-collection date of the observed case</p></td>
+      <td><p>A <code>Date</code> column containing the dates that cases
+were tested</p></td>
     </tr>
     <tr>
       <th>.report_date</th>
-      <td><p><code>&lt;tidy-select&gt;</code> A <code>Date</code> column to use as the report
-date of the observed case</p></td>
+      <td><p>A <code>Date</code> column containing the dates that cases were
+reported</p></td>
     </tr>
     <tr>
-      <th>start_date</th>
-      <td><p>The start date of the epidemic;
-defaults to <code>"2020-03-12"</code>, which is the beginning of the contiguous
-part of Shelby County's observed cases (at least one case observed per
-day since that date).</p></td>
+      <th>today</th>
+      <td><p>The date to consider "today"</p></td>
     </tr>
     <tr>
-      <th>delay_period</th>
-      <td><p>The length of time to use in calculating reporting
-delay; can be a time-based definition (e.g. "2 weeks") or an integer number
-of days. If <code>NULL</code>, <code>delay_period</code> is set to <code>"14 days"</code>.</p></td>
+      <th>iterations</th>
+      <td><p>The number of MCMC iterations for each model in the
+ensemble; the total number of iterations will be twice this amount.</p></td>
     </tr>
     <tr>
-      <th>pct_reported</th>
-      <td><p>The percent of total cases reported before considering
-a collection date to be fully observed. It is not recommended to set this
-to <code>1</code>, as reporting delays typically contain very large outliers which
-will skew the results. The default is <code>0.9</code>, which strikes a balance
-between sensitivity and robustness in Shelby County data.</p></td>
+      <th>burn</th>
+      <td><p>The percentage of initial iterations to discard for each model</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A <code>tibble</code> containing the cleaned linelist</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'><p>Higher-level functions
-<code>
-  <a href='prep_linelist_decomposition.html'>prep_linelist_decomposition()</a>
-  </code>, <code><a href='prep_linelist.html'>prep_linelist()</a></code></p></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
