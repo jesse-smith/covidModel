@@ -45,7 +45,7 @@ bsts_fit <- function(
 #' @noRd
 extract_likelihood_bsts <- function(.bsts, burn = 0.2) {
   .bsts[["log.likelihood"]] %>%
-    tibble::as_tibble() %>%
+    tibble::as_tibble(.name_repair = "unique") %>%
     dplyr::slice_tail(prop = 1 - burn) %>%
     dplyr::pull(1L) %>%
     exp()
@@ -71,7 +71,7 @@ extract_error_bsts <- function(.bsts, burn = 0.2, likelihood = NULL) {
   }
 
   .bsts[["one.step.prediction.errors"]] %>%
-    tibble::as_tibble() %>%
+    tibble::as_tibble(.name_repair = "unique") %>%
     dplyr::slice_tail(prop = 1 - burn) %>%
     abs() %>%
     dplyr::summarize(
