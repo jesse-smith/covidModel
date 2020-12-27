@@ -42,6 +42,10 @@ bsts_season(
 an empty list will be assumed. This argument is named \code{state.specification}
 in bsts.}
 
+\item{.data}{The time series to be modeled, as a numeric vector. Unlike bsts,
+this is piped forward as part of the state if defined, so you only need
+to specify it once (at the beginning of the model-building pipeline).}
+
 \item{method}{Which seasonal model to use. Choose from \code{"regression"} or
 \code{"harmonic"}; \code{"dynamic"} will be implemented in the future.}
 

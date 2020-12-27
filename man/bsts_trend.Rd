@@ -71,15 +71,15 @@ bsts_trend(
 an empty list will be assumed. This argument is named \code{state.specification}
 in bsts.}
 
+\item{.data}{The time series to be modeled, as a numeric vector. Unlike bsts,
+this is piped forward as part of the state if defined, so you only need
+to specify it once (at the beginning of the model-building pipeline).}
+
 \item{method}{Which trend model to use. Choose from \code{"semilocal"}
 (the default), \code{"local"}, \code{"robust"}, or \code{"level"}.}
 
 \item{...}{Additional arguments to pass to methods; see the methods above
 for details}
-
-\item{y}{The time series to be modeled, as a numeric vector. Unlike bsts,
-this is piped forward as part of the state if defined, so you only need
-to specify it once (at the beginning of the model-building pipeline).}
 }
 \value{
 A list with the elements necessary to specify the chosen trend model
