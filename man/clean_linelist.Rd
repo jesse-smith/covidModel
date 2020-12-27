@@ -9,7 +9,7 @@ clean_linelist(
   .collection_date = "collection_date",
   .report_date = "report_date",
   start_date = "2020-03-12",
-  delay_period = "14 days",
+  delay_period = 14L,
   pct_reported = 0.9
 )
 }
