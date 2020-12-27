@@ -9,8 +9,6 @@ data <- dplyr::semi_join(
   inv_data,
   by = "inv_local_id"
 )
-# Remove inv_data to save space
-remove(inv_data)
 
 # Estimate Rt with smoothing and boosting
 rt <- estimate_rt(data)
@@ -35,7 +33,7 @@ current_rt <- rt %>%
   round(digits = 2) %>%
   as.character()
 
-active <- 6049 %>% format(big.mark = ",")
+active <- 6929 %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
   vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
