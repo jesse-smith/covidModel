@@ -28,10 +28,10 @@ plot_rt <- function(
   .data %>%
     ggplot_rt() %>%
     add_rt_level_reference() %>%
-    add_covid_events(lab_y = 2) %>%
     {if (!is.null(.rough_rt)) add_rt_rough(., .rough_rt = .rough_rt) else .} %>%
     add_rt_interval() %>%
     add_rt_curve() %>%
+    add_covid_events(lab_y = 2) %>%
     add_rt_recent() %>%
     add_rt_axis_labels() %>%
     add_rt_title_caption() %>%
