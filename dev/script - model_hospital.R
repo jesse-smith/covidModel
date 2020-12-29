@@ -41,7 +41,7 @@ model$state.contributions %>%
   .[["value"]] ->
 trend
 
-model %>% predict(h = as.Date("2021-01-15") - max(limited_data$date), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
+model %>% predict(h = as.Date("2021-01-31") - max(limited_data$date), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
   tibble::tibble(
     obs   = NA_real_,
     trend = median,
@@ -54,7 +54,7 @@ model %>% predict(h = as.Date("2021-01-15") - max(limited_data$date), quantiles 
   ) %>%
   expm1() %>%
   dplyr::mutate(
-    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-01-15") - max(limited_data$date)), by = 1),
+    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-01-31") - max(limited_data$date)), by = 1),
     .before = 1
   ) ->
 predictions
@@ -141,7 +141,7 @@ observations %>%
     "label",
     x = predictions$date[[1]] - 1,
     y = predictions$trend[[NROW(predictions)]] + min(observations$lower.95[(NROW(observations) - 30):NROW(observations)], predictions$lower.95),
-    label = paste0("Jan 15th Estimate:\n", round(predictions$trend[[NROW(predictions)]]), " on ", format(predictions$date[[NROW(predictions)]], "%b %d")),
+    label = paste0("Jan 31st Estimate:\n", round(predictions$trend[[NROW(predictions)]]), " on ", format(predictions$date[[NROW(predictions)]], "%b %d")),
     hjust = 0.5,
     vjust = 0,
     color = material(1),
