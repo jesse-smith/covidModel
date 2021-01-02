@@ -33,7 +33,7 @@ current_rt <- rt %>%
   round(digits = 2) %>%
   as.character()
 
-active <- 6778 %>% format(big.mark = ",")
+active <- 6492 %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
   vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
