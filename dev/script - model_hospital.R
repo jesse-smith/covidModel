@@ -140,7 +140,7 @@ observations %>%
   ggplot2::annotate(
     "label",
     x = predictions$date[[1]] - 1,
-    y = predictions$trend[[NROW(predictions)]] + min(observations$lower.95[(NROW(observations) - 30):NROW(observations)], predictions$lower.95),
+    y = predictions$trend[[NROW(predictions)]] + 100,
     label = paste0("Jan 31st Estimate:\n", round(predictions$trend[[NROW(predictions)]]), " on ", format(predictions$date[[NROW(predictions)]], "%b %d")),
     hjust = 0.5,
     vjust = 0,
@@ -152,7 +152,7 @@ observations %>%
   ggplot2::annotate(
     "segment",
     x = predictions$date[[1]] - 1,
-    y = predictions$trend[[NROW(predictions)]] + min(observations$lower.95[(NROW(observations) - 30):NROW(observations)], predictions$lower.95),
+    y = predictions$trend[[NROW(predictions)]] + 100,
     xend = predictions$date[[1]] - 1,
     yend = predictions$trend[[NROW(predictions)]],
     color = material(1)
