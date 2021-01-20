@@ -33,15 +33,15 @@ current_rt <- rt %>%
   round(digits = 2) %>%
   as.character()
 
-inf <- simulate_infections(rt, h = 365) %>% vec_slice(i = (vec_size(inf)-364):vec_size(inf))
+c_inf <- simulate_infections(rt, h = 365) %>%
+  vec_slice(i = (vec_size(.)-364):vec_size(.)) %>%
+  cumsum()
 
-c_inf <- cumsum(inf)
-
-dt <- vec_size(c_inf[c_inf <= 75016])
+dt <- vec_size(c_inf[c_inf <= 76534])
 
 paste0("Doubling Time: ", dt, " days")
 
-active <- 7970 %>% format(big.mark = ",")
+active <- 6641 %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
   vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
