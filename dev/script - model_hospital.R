@@ -41,7 +41,7 @@ model$state.contributions %>%
   .[["value"]] ->
 trend
 
-model %>% predict(h = as.Date("2021-01-31") - max(limited_data$date), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
+model %>% predict(h = as.Date("2021-02-28") - max(limited_data$date), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
   tibble::tibble(
     obs   = NA_real_,
     trend = median,
@@ -52,9 +52,13 @@ model %>% predict(h = as.Date("2021-01-31") - max(limited_data$date), quantiles 
     upper.50 = interval[5,],
     upper.95 = interval[6,]
   ) %>%
-  expm1() %>%
   dplyr::mutate(
-    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-01-31") - max(limited_data$date)), by = 1),
+    dplyr::across(
+      .fns = ~ timetk::log_interval_inv_vec(.x, limit_lower = 0, limit_upper = 1400, offset = 1)
+    )
+  ) %>%
+  dplyr::mutate(
+    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-02-28") - max(limited_data$date)), by = 1),
     .before = 1
   ) ->
 predictions
@@ -71,7 +75,11 @@ tibble::tibble(
   upper.50 = qnorm(p = 0.75,  mean = trend, sd = sigma),
   upper.95 = qnorm(p = 0.975, mean = trend, sd = sigma)
 ) %>%
-  expm1() %>%
+  dplyr::mutate(
+    dplyr::across(
+      .fns = ~ timetk::log_interval_inv_vec(.x, limit_lower = 0, limit_upper = 1400, offset = 1)
+    )
+  ) %>%
   dplyr::mutate(trend = c(rep(NA_real_, length(trend)-1), obs[length(trend)])) %>%
   dplyr::mutate(
     date = model$timestamp.info$timestamps,
@@ -141,7 +149,7 @@ observations %>%
     "label",
     x = predictions$date[[1]] - 1,
     y = predictions$trend[[NROW(predictions)]] + 100,
-    label = paste0("Jan 31st Estimate:\n", round(predictions$trend[[NROW(predictions)]]), " on ", format(predictions$date[[NROW(predictions)]], "%b %d")),
+    label = paste0("Feb 28th Estimate:\n", round(predictions$trend[[NROW(predictions)]]), " on ", format(predictions$date[[NROW(predictions)]], "%b %d")),
     hjust = 0.5,
     vjust = 0,
     color = material(1),

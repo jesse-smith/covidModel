@@ -3,18 +3,16 @@ model_hospital <- function(
   dates,
   niter = ceiling(1e4 / 0.8)
 ) {
-  z <- census %>% log1p() %>% zoo::zoo()
+  z <- census %>% timetk::log_interval_vec(
+    limit_lower = 0,
+    limit_upper = 1400,
+    offset = 1
+  ) %>%
+    zoo::zoo()
 
   zoo::index(z) <- dates
 
-  bsts::AddSemilocalLinearTrend(
-    y = z,
-    slope.ar1.prior = Boom::Ar1CoefficientPrior(
-      mu = 1,
-      force.stationary = FALSE,
-      force.positive = TRUE
-    )
-  ) %>%
+  bsts::AddLocalLinearTrend(y = z) %>%
     bsts::bsts(formula = z, niter = niter) ->
   model
 
