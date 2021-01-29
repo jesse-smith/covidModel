@@ -1,5 +1,5 @@
 devtools::load_all()
-library(covidModel)
+# library(covidModel)
 library(magrittr)
 # Can also load limited dataset in with readxl, etc
 limited_data <- coviData:::load_limited() %>%
@@ -52,11 +52,7 @@ model %>% predict(h = as.Date("2021-02-28") - max(limited_data$date), quantiles 
     upper.50 = interval[5,],
     upper.95 = interval[6,]
   ) %>%
-  dplyr::mutate(
-    dplyr::across(
-      .fns = ~ timetk::log_interval_inv_vec(.x, limit_lower = 0, limit_upper = 1400, offset = 1)
-    )
-  ) %>%
+  expm1() %>%
   dplyr::mutate(
     date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-02-28") - max(limited_data$date)), by = 1),
     .before = 1
@@ -75,11 +71,7 @@ tibble::tibble(
   upper.50 = qnorm(p = 0.75,  mean = trend, sd = sigma),
   upper.95 = qnorm(p = 0.975, mean = trend, sd = sigma)
 ) %>%
-  dplyr::mutate(
-    dplyr::across(
-      .fns = ~ timetk::log_interval_inv_vec(.x, limit_lower = 0, limit_upper = 1400, offset = 1)
-    )
-  ) %>%
+  expm1() %>%
   dplyr::mutate(trend = c(rep(NA_real_, length(trend)-1), obs[length(trend)])) %>%
   dplyr::mutate(
     date = model$timestamp.info$timestamps,

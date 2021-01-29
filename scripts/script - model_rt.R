@@ -1,14 +1,15 @@
 devtools::load_all()
 
 # Load yesterday's cumulative case data
-inv_data <- coviData::process_positive_people(Sys.Date() - 1)
+inv_data <- coviData::process_positive_people(Sys.Date())
 
 # Combine with the current report date data
 data <- dplyr::semi_join(
   coviData::load_report_date() %>% dplyr::as_tibble(),
   inv_data,
   by = "inv_local_id"
-)
+) %>%
+  dplyr::mutate(collection_date = lubridate::as_date(collection_date))
 
 # Estimate Rt with smoothing and boosting
 rt <- estimate_rt(data)
@@ -33,15 +34,15 @@ current_rt <- rt %>%
   round(digits = 2) %>%
   as.character()
 
-c_inf <- simulate_infections(rt, h = 365) %>%
-  vec_slice(i = (vec_size(.)-364):vec_size(.)) %>%
-  cumsum()
+# c_inf <- simulate_infections(rt, h = 365) %>%
+#   vec_slice(i = (vec_size(.)-364):vec_size(.)) %>%
+#   cumsum()
+#
+# dt <- vec_size(c_inf[c_inf <= 76534])
+#
+# paste0("Doubling Time: ", dt, " days")
 
-dt <- vec_size(c_inf[c_inf <= 76534])
-
-paste0("Doubling Time: ", dt, " days")
-
-active <- 6641 %>% format(big.mark = ",")
+active <- 4193 %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
   vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
