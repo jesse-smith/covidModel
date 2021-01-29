@@ -3,17 +3,16 @@ model_hospital <- function(
   dates,
   niter = ceiling(1e4 / 0.8)
 ) {
-  z <- census %>% timetk::log_interval_vec(
-    limit_lower = 0,
-    limit_upper = 1400,
-    offset = 1
-  ) %>%
-    zoo::zoo()
+  z <- census %>% log1p() %>% zoo::zoo()
 
   zoo::index(z) <- dates
 
   bsts::AddLocalLinearTrend(y = z) %>%
-    bsts::bsts(formula = z, niter = niter) ->
+    bsts::bsts(
+      formula = z,
+      niter = niter,
+      seed = 200L
+    ) ->
   model
 
   attr(model, which = "trans") <- log1p
