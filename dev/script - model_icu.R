@@ -95,7 +95,7 @@ observations %>%
   ggplot2::labs(title = "Shelby County ICU Census", caption = "Data Source: Healthcare Resource Tracking System (HRTS)") +
   ggplot2::scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   ggplot2::scale_y_continuous(breaks = seq(0, 10000, by = 50), labels = scales::label_comma(suffix = " patients")) +
-  ggplot2::coord_cartesian(xlim = c(as.Date("2020-04-01"), max(predictions$date) + 1), ylim = c(0, max(predictions$upper.95))) +
+  ggplot2::coord_cartesian(xlim = c(as.Date("2020-04-01"), max(predictions$date) + 1), ylim = c(0, max(c(observations$upper.95, predictions$upper.95), na.rm = TRUE))) +
   ggplot2::scale_color_manual(
     name = "Prediction Confidence:",
     values = material(3),

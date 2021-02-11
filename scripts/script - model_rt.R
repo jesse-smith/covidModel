@@ -1,7 +1,7 @@
 devtools::load_all()
 
 # Load yesterday's cumulative case data
-inv_data <- coviData::process_positive_people(Sys.Date()-1L)
+inv_data <- coviData::process_positive_people()
 
 # Combine with the current report date data
 data <- dplyr::semi_join(
@@ -42,7 +42,7 @@ current_rt <- rt %>%
 #
 # paste0("Doubling Time: ", dt, " days")
 
-active <- 3378 %>% format(big.mark = ",")
+active <- 2911 %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
   vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%

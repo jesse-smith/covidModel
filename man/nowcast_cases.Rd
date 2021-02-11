@@ -9,7 +9,7 @@ nowcast_cases(
   .collection_date = "collection_date",
   .report_date = "report_date",
   today = Sys.Date(),
-  iterations = ceiling(0.5 * 10000/(1 - burn)),
+  iterations = ceiling(10000/(1 - burn)),
   burn = 0.2
 )
 }
