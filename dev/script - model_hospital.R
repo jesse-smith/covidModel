@@ -41,7 +41,7 @@ model$state.contributions %>%
   .[["value"]] ->
 trend
 
-model %>% predict(h = as.Date("2021-02-28") - max(limited_data$date), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
+model %>% predict(h = as.Date("2021-03-31") - max(limited_data$date, na.rm = TRUE), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
   tibble::tibble(
     obs   = NA_real_,
     trend = median,
@@ -54,7 +54,7 @@ model %>% predict(h = as.Date("2021-02-28") - max(limited_data$date), quantiles 
   ) %>%
   expm1() %>%
   dplyr::mutate(
-    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-02-28") - max(limited_data$date)), by = 1),
+    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-03-31") - max(limited_data$date, na.rm = TRUE)), by = 1),
     .before = 1
   ) ->
 predictions
@@ -140,55 +140,55 @@ observations %>%
   ggplot2::annotate(
     "label",
     x = predictions$date[[1]] - 1,
-    y = predictions$trend[[NROW(predictions)]] + 100,
-    label = paste0("Feb 28th Estimate:\n", round(predictions$trend[[NROW(predictions)]]), " on ", format(predictions$date[[NROW(predictions)]], "%b %d")),
-    hjust = 0.5,
+    y = predictions$trend[[NROW(predictions)]] + 10,
+    label = paste0("Estimate:", round(predictions$trend[[NROW(predictions)]]), " on ", format(predictions$date[[NROW(predictions)]], "%b %d")),
+    hjust = 1,
     vjust = 0,
     color = material(1),
     fontface = "bold",
     fill = "white",
     size = 4.75
   ) +
-  ggplot2::annotate(
-    "segment",
-    x = predictions$date[[1]] - 1,
-    y = predictions$trend[[NROW(predictions)]] + 100,
-    xend = predictions$date[[1]] - 1,
-    yend = predictions$trend[[NROW(predictions)]],
-    color = material(1)
-  ) +
-  ggplot2::annotate(
-    "point",
-    x = predictions$date[[1]] - 1,
-    y = predictions$trend[[NROW(predictions)]],
-    color = material(1)
-  ) +
+  # ggplot2::annotate(
+  #   "segment",
+  #   x = predictions$date[[1]] - 1,
+  #   y = predictions$trend[[NROW(predictions)]] + 100,
+  #   xend = predictions$date[[1]] - 1,
+  #   yend = predictions$trend[[NROW(predictions)]],
+  #   color = material(1)
+  # ) +
+  # ggplot2::annotate(
+  #   "point",
+  #   x = predictions$date[[1]] - 1,
+  #   y = predictions$trend[[NROW(predictions)]],
+  #   color = material(1)
+  # ) +
   ggplot2::annotate(
     "label",
-    x = observations$date[[NROW(observations)]],
-    y = min(observations$lower.95[(NROW(observations) - 30):NROW(observations)], predictions$lower.95),
+    x = observations$date[[1L]],
+    y = observations$trend[[NROW(observations)]] + 10,
     label = paste0("Hospital Census:\n", round(observations$obs[[NROW(observations)]]), " on ", format(observations$date[[NROW(observations)]], "%b %d")),
-    hjust = 0.5,
-    vjust = 1,
+    hjust = 0,
+    vjust = 0,
     color = "gray23",
     fill  = "white",
     size = 4.75,
     fontface = "bold"
   ) +
-  ggplot2::annotate(
-    "segment",
-    x = observations$date[[NROW(observations)]],
-    y = observations$obs[[NROW(observations)]],
-    xend = observations$date[[NROW(observations)]],
-    yend = min(observations$lower.95[(NROW(observations) - 30):NROW(observations)], predictions$lower.95),
-    color = "gray23"
-  ) +
-  ggplot2::annotate(
-    "point",
-    x = observations$date[[NROW(observations)]],
-    y = observations$obs[[NROW(observations)]],
-    color = "gray23"
-  ) +
+  # ggplot2::annotate(
+  #   "segment",
+  #   x = observations$date[[NROW(observations)]],
+  #   y = observations$obs[[NROW(observations)]],
+  #   xend = observations$date[[NROW(observations)]],
+  #   yend = min(observations$lower.95[(NROW(observations) - 30):NROW(observations)], predictions$lower.95),
+  #   color = "gray23"
+  # ) +
+  # ggplot2::annotate(
+  #   "point",
+  #   x = observations$date[[NROW(observations)]],
+  #   y = observations$obs[[NROW(observations)]],
+  #   color = "gray23"
+  # ) +
   ggplot2::theme(
     plot.title = ggplot2::element_text(hjust = 0.5),
     # axis.title.y = ggplot2::element_text(size = 18),

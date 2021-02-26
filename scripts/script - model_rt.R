@@ -14,18 +14,6 @@ data <- dplyr::semi_join(
 # Estimate Rt with smoothing and boosting
 rt <- estimate_rt(data)
 
-# Unsmoothed Rt
-rough_rt <- estimate_rt(data, trend = 1L, boost = FALSE)
-
-# Create and show figure
-rt_plot <- plot_rt(rt, .rough_rt = rough_rt) %T>% show()
-
-# Save to figs
-save_plot(
-  rt_plot,
-  paste0("figs/rt_plot", Sys.Date(), ".png")
-)
-
 # Get current infectious activity
 
 current_rt <- rt %>%
@@ -42,7 +30,7 @@ current_rt <- rt %>%
 #
 # paste0("Doubling Time: ", dt, " days")
 
-active <- 2911 %>% format(big.mark = ",")
+active <- 1296 %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
   vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
