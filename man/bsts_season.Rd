@@ -12,7 +12,9 @@ bsts_season(
   method = c("regression", "harmonic", "dynamic"),
   period = NULL,
   season = NULL,
-  ...
+  sigma.prior = NULL,
+  initial.state.prior = NULL,
+  sdy = NULL
 )
 
 \method{bsts_season}{regression}(
@@ -56,14 +58,23 @@ number makes this equivalent to \code{nseasons} in
 \code{\link[bsts:AddTrig]{AddTrig()}} (for methods \code{regression} or
 \code{harmonic}, respectively).}
 
-\item{season}{The length of a season within a period (e.g. "1 month" for a 1 year period
-with monthly seasonality); the default is one season per
+\item{season}{The length of a season within a period (e.g. "1 month" for a 1
+year period with monthly seasonality); the default is one season per
 observation within a period. Can be supplied in the same
 way as \code{period}. This parameter is ignored for
 \code{method = "harmonic"}.}
 
-\item{...}{Additional arguments to pass to methods; see the methods above
-for details}
+\item{sigma.prior}{An object created by \code{\link[Boom:SdPrior]{SdPrior()}}
+describing the prior distribution for the standard deviation of the random
+walk increments}
+
+\item{initial.state.prior}{An object created by
+\code{\link[Boom:NormalPrior]{NormalPrior()}} describing the prior
+distribution of the the initial state vector (at time 1)}
+
+\item{sdy}{The standard deviation of the series to be modeled. This will be
+ignored if y is provided, or if all the required prior distributions are
+supplied directly}
 }
 \value{
 A list with the updated state specification of a bsts model
