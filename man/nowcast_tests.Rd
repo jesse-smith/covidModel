@@ -22,6 +22,20 @@ nowcast_tests(
   burn = 0.2
 )
 }
+\arguments{
+\item{.data}{A linelist of incident cases/tests as a data frame}
+
+\item{.collection_date}{A \code{Date} column containing the test date}
+
+\item{.report_date}{A \code{Date} column containing the report date}
+
+\item{today}{The date to consider "today"}
+
+\item{iterations}{The number of MCMC iterations for each model in the
+ensemble; the total number of iterations will be twice this amount.}
+
+\item{burn}{The percentage of initial iterations to discard for each model}
+}
 \description{
 \code{nowcast_tests()} predicts the expected number of tests per day through the
 current date given a linelist of cases with collection and report dates. It

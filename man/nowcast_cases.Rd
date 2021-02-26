@@ -14,13 +14,11 @@ nowcast_cases(
 )
 }
 \arguments{
-\item{.data}{A linelist of incidence cases as a data frame}
+\item{.data}{A linelist of incident cases/tests as a data frame}
 
-\item{.collection_date}{A \code{Date} column containing the dates that cases
-were tested}
+\item{.collection_date}{A \code{Date} column containing the test date}
 
-\item{.report_date}{A \code{Date} column containing the dates that cases were
-reported}
+\item{.report_date}{A \code{Date} column containing the report date}
 
 \item{today}{The date to consider "today"}
 

@@ -25,6 +25,8 @@ collection date of the observed case}
 \item{.report_date}{\verb{<tidy-select>} A \code{Date} column to use as the report
 date of the observed case}
 
+\item{pct}{The quantile to use when computing the delay}
+
 \item{period}{The number of days to average over for the rolling comparison}
 
 \item{today}{The date to consider "today"}

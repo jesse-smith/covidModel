@@ -23,6 +23,8 @@
 #'
 #' @inheritParams prep_linelist
 #'
+#' @param pct The quantile to use when computing the delay
+#'
 #' @param period The number of days to average over for the rolling comparison
 #'
 #' @param today The date to consider "today"

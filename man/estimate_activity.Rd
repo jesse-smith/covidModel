@@ -24,6 +24,18 @@ estimate_activity(.data, incid, .t, serial_interval_mean, serial_interval_sd)
   serial_interval_sd = attr(.data, "serial_interval")[[2L]]
 )
 }
+\arguments{
+\item{.data}{Daily incidence data in data frame or \code{covidmodel_rt} format}
+
+\item{incid}{Character. The column containing incidence data}
+
+\item{.t}{Character. The time column.}
+
+\item{serial_interval_mean}{Numeric. The average of the serial interval.}
+
+\item{serial_interval_sd}{Numeric. The standard deviation of the serial
+interval.}
+}
 \description{
 Estimate Infectious Activity from Incidence and Serial Interval
 }

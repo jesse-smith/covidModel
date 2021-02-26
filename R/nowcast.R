@@ -7,13 +7,11 @@
 #' predicted by a weighted ensemble of two log-linear structural time series
 #' models with semilocal and robust (Student-t) trends.
 #'
-#' @param .data A linelist of incidence cases as a data frame
+#' @param .data A linelist of incident cases/tests as a data frame
 #'
-#' @param .collection_date A `Date` column containing the dates that cases
-#'   were tested
+#' @param .collection_date A `Date` column containing the test date
 #'
-#' @param .report_date A `Date` column containing the dates that cases were
-#'   reported
+#' @param .report_date A `Date` column containing the report date
 #'
 #' @param today The date to consider "today"
 #'
@@ -90,6 +88,8 @@ nowcast_cases <- function(
 #' the last complete collection date and forecasts from that point. Tests are
 #' predicted by a weighted ensemble of two structural time series models with
 #' semilocal and robust (Student-t) trends and a square-root link.
+#'
+#' @inheritParams nowcast_cases
 nowcast_tests <- function(
   .data,
   .collection_date = "collection_date",

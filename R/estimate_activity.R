@@ -1,5 +1,16 @@
 #' Estimate Infectious Activity from Incidence and Serial Interval
 #'
+#' @param .data Daily incidence data in data frame or `covidmodel_rt` format
+#'
+#' @param incid Character. The column containing incidence data
+#'
+#' @param .t Character. The time column.
+#'
+#' @param serial_interval_mean Numeric. The average of the serial interval.
+#'
+#' @param serial_interval_sd Numeric. The standard deviation of the serial
+#'   interval.
+#'
 #' @export
 estimate_activity <- function(
   .data,
