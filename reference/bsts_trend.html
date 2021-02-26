@@ -211,6 +211,89 @@ to specify it once (at the beginning of the model-building pipeline).</p></td>
       <td><p>Additional arguments to pass to methods; see the methods above
 for details</p></td>
     </tr>
+    <tr>
+      <th>level.sigma.prior</th>
+      <td><p>An object created by
+   <code><a href='https://rdrr.io/pkg/Boom/man/sd.prior.html'>SdPrior</a></code> describing the prior
+   distribution for the standard deviation of the level component.</p></td>
+    </tr>
+    <tr>
+      <th>slope.mean.prior</th>
+      <td><p>An object created by
+   <code><a href='https://rdrr.io/pkg/Boom/man/normal.prior.html'>NormalPrior</a></code> giving the prior distribution for
+   the mean parameter in the generalized local linear trend model (see
+   below).</p></td>
+    </tr>
+    <tr>
+      <th>slope.ar1.prior</th>
+      <td><p>An object created by
+   <code><a href='https://rdrr.io/pkg/Boom/man/ar1.coefficient.prior.html'>Ar1CoefficientPrior</a></code> giving the prior
+   distribution for the ar1 coefficient parameter in the generalized
+   local linear trend model (see below).</p></td>
+    </tr>
+    <tr>
+      <th>slope.sigma.prior</th>
+      <td><p>An object created by
+   <code><a href='https://rdrr.io/pkg/Boom/man/sd.prior.html'>SdPrior</a></code> describing the prior distribution of
+   the standard deviation of the slope component.</p></td>
+    </tr>
+    <tr>
+      <th>initial.level.prior</th>
+      <td><p>An object created by
+    <code><a href='https://rdrr.io/pkg/Boom/man/normal.prior.html'>NormalPrior</a></code> describing the initial distribution
+    of the level portion of the initial state vector.</p></td>
+    </tr>
+    <tr>
+      <th>initial.slope.prior</th>
+      <td><p>An object created by
+    <code><a href='https://rdrr.io/pkg/Boom/man/normal.prior.html'>NormalPrior</a></code> describing the prior distribution
+    for the slope portion of the initial state vector.</p></td>
+    </tr>
+    <tr>
+      <th>sdy</th>
+      <td><p>The standard deviation of the series to be modeled.  This
+    will be ignored if <code>y</code> is provided, or if all the required
+    prior distributions are supplied directly.</p></td>
+    </tr>
+    <tr>
+      <th>initial.y</th>
+      <td><p>The initial value of the series being modeled.  This will be
+    ignored if <code>y</code> is provided, or if the priors for the initial
+    state are all provided directly.</p></td>
+    </tr>
+    <tr>
+      <th>save.weights</th>
+      <td><p>A logical value indicating whether to save the
+    draws of the weights from the normal mixture representation.</p></td>
+    </tr>
+    <tr>
+      <th>level.nu.prior</th>
+      <td><p>An object inheritng from the class
+    <code><a href='https://rdrr.io/pkg/Boom/man/double.model.html'>DoubleModel</a></code>, representing the prior
+    distribution on the <code>nu</code> tail thickness parameter of the T
+    distribution for errors in the evolution equation for the level
+    component.</p></td>
+    </tr>
+    <tr>
+      <th>slope.nu.prior</th>
+      <td><p>An object inheritng from the class
+    <code><a href='https://rdrr.io/pkg/Boom/man/double.model.html'>DoubleModel</a></code>, representing the prior
+    distribution on the <code>nu</code> tail thickness parameter of the T
+    distribution for errors in the evolution equation for the slope
+    component.</p></td>
+    </tr>
+    <tr>
+      <th>sigma.prior</th>
+      <td><p>An object created by <code><a href='https://rdrr.io/pkg/Boom/man/sd.prior.html'>SdPrior</a></code>
+    describing the prior distribution for the standard deviation of the
+    random walk increments.</p></td>
+    </tr>
+    <tr>
+      <th>initial.state.prior</th>
+      <td><p>An object created using
+    <code><a href='https://rdrr.io/pkg/Boom/man/normal.prior.html'>NormalPrior</a></code>, describing the prior distribution
+    of the initial state vector (at time 1).</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -219,10 +302,10 @@ for details</p></td>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='https://rdrr.io/pkg/bsts/man/bsts.html'>bsts()</a></code>,
-<code>[bsts:AddSemilocalLinearTrend]{AddSemilocalLinearTrend()}</code>,
-<code>[bsts:AddLocalLinearTrend]{AddLocalLinearTrend()}</code>,
-<code>[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}</code>,
-<code>[bsts:AddLocalLevel]{AddLocalLevel()}</code></p>
+<code><a href='https://rdrr.io/pkg/bsts/man/add.semilocal.linear.trend.html'>AddSemilocalLinearTrend()</a></code>,
+<code><a href='https://rdrr.io/pkg/bsts/man/add.local.linear.trend.html'>AddLocalLinearTrend()</a></code>,
+<code><a href='https://rdrr.io/pkg/bsts/man/add.student.local.linear.trend.html'>AddStudentLocalLinearTrend()</a></code>,
+<code><a href='https://rdrr.io/pkg/bsts/man/add.local.level.html'>AddLocalLevel()</a></code></p>
 <p>Other bsts: 
 <code><a href='bsts_season.html'>bsts_season</a>()</code></p></div>
 

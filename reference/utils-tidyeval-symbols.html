@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Nowcast — nowcast_tests • covidModel</title>
+<title>Symbols Used in Tidy Evaluation — utils-tidyeval-symbols • covidModel</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,13 +46,13 @@
 
 
 
-<meta property="og:title" content="Nowcast — nowcast_tests" />
-<meta property="og:description" content="nowcast_tests() predicts the expected number of tests per day through the
-current date given a linelist of cases with collection and report dates. It
-uses estimate_delay() to determine
-the last complete collection date and forecasts from that point. Tests are
-predicted by a weighted ensemble of two structural time series models with
-semilocal and robust (Student-t) trends and a square-root link." />
+<meta property="og:title" content="Symbols Used in Tidy Evaluation — utils-tidyeval-symbols" />
+<meta property="og:description" content="Import tidy eval pronouns (.data and
+.env), as well as forcing operators
+(!!, !!!, and
+:=).
+These operators cannot be called using the usual :: syntax and must thus
+be imported to prevent R CMD CHECK warnings." />
 <meta property="og:image" content="https://jesse-smith.github.io/covidModel/logo.png" />
 
 
@@ -116,67 +116,21 @@ semilocal and robust (Student-t) trends and a square-root link." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Nowcast</h1>
+    <h1>Symbols Used in Tidy Evaluation</h1>
     
-    <div class="hidden name"><code>nowcast_tests.Rd</code></div>
+    <div class="hidden name"><code>utils-tidyeval-symbols.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><code>nowcast_tests()</code> predicts the expected number of tests per day through the
-current date given a linelist of cases with collection and report dates. It
-uses <code><a href='estimate_delay.html'>estimate_delay()</a></code> to determine
-the last complete collection date and forecasts from that point. Tests are
-predicted by a weighted ensemble of two structural time series models with
-semilocal and robust (Student-t) trends and a square-root link.</p>
+    <p>Import tidy eval pronouns (<code><a href='https://rlang.r-lib.org/reference/tidyeval-data.html'>.data</a></code> and
+<code><a href='https://rlang.r-lib.org/reference/tidyeval-data.html'>.env</a></code>), as well as forcing operators
+(<code><a href='https://rlang.r-lib.org/reference/nse-force.html'>!!</a></code>, <code><a href='https://rlang.r-lib.org/reference/nse-force.html'>!!!</a></code>, and
+<code><a href='https://rlang.r-lib.org/reference/nse-force.html'>:=</a></code>).
+These operators cannot be called using the usual <code><a href='https://rdrr.io/r/base/ns-dblcolon.html'>::</a></code> syntax and must thus
+be imported to prevent R CMD CHECK warnings.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>nowcast_tests</span><span class='op'>(</span>
-  <span class='va'>.data</span>,
-  .collection_date <span class='op'>=</span> <span class='st'>"collection_date"</span>,
-  .report_date <span class='op'>=</span> <span class='st'>"report_date"</span>,
-  today <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span><span class='op'>(</span><span class='op'>)</span>,
-  iterations <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>ceiling</a></span><span class='op'>(</span><span class='fl'>10000</span><span class='op'>/</span><span class='fl'>0.8</span><span class='op'>)</span>,
-  burn <span class='op'>=</span> <span class='fl'>0.2</span>
-<span class='op'>)</span>
 
-<span class='fu'>nowcast_tests</span><span class='op'>(</span>
-  <span class='va'>.data</span>,
-  .collection_date <span class='op'>=</span> <span class='st'>"collection_date"</span>,
-  .report_date <span class='op'>=</span> <span class='st'>"report_date"</span>,
-  today <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span><span class='op'>(</span><span class='op'>)</span>,
-  iterations <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/Round.html'>ceiling</a></span><span class='op'>(</span><span class='fl'>10000</span><span class='op'>/</span><span class='fl'>0.8</span><span class='op'>)</span>,
-  burn <span class='op'>=</span> <span class='fl'>0.2</span>
-<span class='op'>)</span></pre>
-
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>.data</th>
-      <td><p>A linelist of incident cases/tests as a data frame</p></td>
-    </tr>
-    <tr>
-      <th>.collection_date</th>
-      <td><p>A <code>Date</code> column containing the test date</p></td>
-    </tr>
-    <tr>
-      <th>.report_date</th>
-      <td><p>A <code>Date</code> column containing the report date</p></td>
-    </tr>
-    <tr>
-      <th>today</th>
-      <td><p>The date to consider "today"</p></td>
-    </tr>
-    <tr>
-      <th>iterations</th>
-      <td><p>The number of MCMC iterations for each model in the
-ensemble; the total number of iterations will be twice this amount.</p></td>
-    </tr>
-    <tr>
-      <th>burn</th>
-      <td><p>The percentage of initial iterations to discard for each model</p></td>
-    </tr>
-    </table>
 
 
   </div>
