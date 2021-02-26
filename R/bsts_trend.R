@@ -16,16 +16,24 @@
 #' @param method Which trend model to use. Choose from `"semilocal"`
 #'   (the default), `"local"`, `"robust"`, or `"level"`.
 #'
+#' @inheritParams bsts::AddSemilocalLinearTrend
+#'
+#' @inheritParams bsts::AddLocalLinearTrend
+#'
+#' @inheritParams bsts::AddStudentLocalLinearTrend
+#'
+#' @inheritParams bsts::AddLocalLevel
+#'
 #' @param ... Additional arguments to pass to methods; see the methods above
 #'   for details
 #'
 #' @return A list with the elements necessary to specify the chosen trend model
 #'
 #' @seealso \code{\link[bsts:bsts]{bsts()}},
-#'  \code{\list[bsts:AddSemilocalLinearTrend]{AddSemilocalLinearTrend()}},
-#'  \code{\list[bsts:AddLocalLinearTrend]{AddLocalLinearTrend()}},
-#'  \code{\list[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}},
-#'  \code{\list[bsts:AddLocalLevel]{AddLocalLevel()}}
+#'  \code{\link[bsts:AddSemilocalLinearTrend]{AddSemilocalLinearTrend()}},
+#'  \code{\link[bsts:AddLocalLinearTrend]{AddLocalLinearTrend()}},
+#'  \code{\link[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}},
+#'  \code{\link[bsts:AddLocalLevel]{AddLocalLevel()}}
 #'
 #' @aliases bsts_trend.semilocal bsts_trend.local bsts_trend.robust
 #'   bsts_trend.level

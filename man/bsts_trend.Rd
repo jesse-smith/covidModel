@@ -80,6 +80,63 @@ to specify it once (at the beginning of the model-building pipeline).}
 
 \item{...}{Additional arguments to pass to methods; see the methods above
 for details}
+
+\item{level.sigma.prior}{An object created by
+   \code{\link[Boom]{SdPrior}} describing the prior
+   distribution for the standard deviation of the level component.}
+
+\item{slope.mean.prior}{An object created by
+   \code{\link[Boom]{NormalPrior}} giving the prior distribution for
+   the mean parameter in the generalized local linear trend model (see
+   below). }
+
+\item{slope.ar1.prior}{An object created by
+   \code{\link[Boom]{Ar1CoefficientPrior}} giving the prior
+   distribution for the ar1 coefficient parameter in the generalized
+   local linear trend model (see below). }
+
+\item{slope.sigma.prior}{An object created by
+   \code{\link[Boom]{SdPrior}} describing the prior distribution of
+   the standard deviation of the slope component.}
+
+\item{initial.level.prior}{An object created by
+    \code{\link[Boom]{NormalPrior}} describing the initial distribution
+    of the level portion of the initial state vector.}
+
+\item{initial.slope.prior}{An object created by
+    \code{\link[Boom]{NormalPrior}} describing the prior distribution
+    for the slope portion of the initial state vector.}
+
+\item{sdy}{The standard deviation of the series to be modeled.  This
+    will be ignored if \code{y} is provided, or if all the required
+    prior distributions are supplied directly.  }
+
+\item{initial.y}{The initial value of the series being modeled.  This will be
+    ignored if \code{y} is provided, or if the priors for the initial
+    state are all provided directly.}
+
+\item{save.weights}{A logical value indicating whether to save the
+    draws of the weights from the normal mixture representation.}
+
+\item{level.nu.prior}{An object inheritng from the class
+    \code{\link[Boom]{DoubleModel}}, representing the prior
+    distribution on the \code{nu} tail thickness parameter of the T
+    distribution for errors in the evolution equation for the level
+    component.}
+
+\item{slope.nu.prior}{An object inheritng from the class
+    \code{\link[Boom]{DoubleModel}}, representing the prior
+    distribution on the \code{nu} tail thickness parameter of the T
+    distribution for errors in the evolution equation for the slope
+    component.}
+
+\item{sigma.prior}{An object created by \code{\link[Boom]{SdPrior}}
+    describing the prior distribution for the standard deviation of the
+    random walk increments.}
+
+\item{initial.state.prior}{An object created using
+    \code{\link[Boom]{NormalPrior}}, describing the prior distribution
+    of the initial state vector (at time 1).}
 }
 \value{
 A list with the elements necessary to specify the chosen trend model
@@ -91,10 +148,10 @@ passed via \code{...}; see the four methods for details of those arguments.
 }
 \seealso{
 \code{\link[bsts:bsts]{bsts()}},
-\code{\list[bsts:AddSemilocalLinearTrend]{AddSemilocalLinearTrend()}},
-\code{\list[bsts:AddLocalLinearTrend]{AddLocalLinearTrend()}},
-\code{\list[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}},
-\code{\list[bsts:AddLocalLevel]{AddLocalLevel()}}
+\code{\link[bsts:AddSemilocalLinearTrend]{AddSemilocalLinearTrend()}},
+\code{\link[bsts:AddLocalLinearTrend]{AddLocalLinearTrend()}},
+\code{\link[bsts:AddStudentLocalLinearTrend]{AddStudentLocalLinearTrend()}},
+\code{\link[bsts:AddLocalLevel]{AddLocalLevel()}}
 
 Other bsts: 
 \code{\link{bsts_season}()}
