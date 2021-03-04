@@ -30,7 +30,7 @@ current_rt <- rt %>%
 #
 # paste0("Doubling Time: ", dt, " days")
 
-active <- 1227 %>% format(big.mark = ",")
+active <- 1302 %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
   vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
