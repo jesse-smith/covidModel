@@ -22,20 +22,12 @@ current_rt <- rt %>%
   round(digits = 2) %>%
   as.character()
 
-# c_inf <- simulate_infections(rt, h = 365) %>%
-#   vec_slice(i = (vec_size(.)-364):vec_size(.)) %>%
-#   cumsum()
-#
-# dt <- vec_size(c_inf[c_inf <= 76534])
-#
-# paste0("Doubling Time: ", dt, " days")
-
-active <- 1302 %>% format(big.mark = ",")
+active <- calc_active_cases(inv_data) %>% format(big.mark = ",")
 
 rt_tbl_val <- simulate_infections(rt, h = 30) %>%
-  vec_slice(i = seq(vec_size(.) - 29, vec_size(.), 1)) %>%
+  vctrs::vec_slice(i = seq(vctrs::vec_size(.) - 29, vctrs::vec_size(.), 1)) %>%
   cumsum() %>%
-  vec_slice(i = vec_size(.) - c(19, 9, 0)) %>%
+  vctrs::vec_slice(i = vctrs::vec_size(.) - c(19, 9, 0)) %>%
   round() %>%
   format(big.mark = ",") %>%
   stringr::str_squish() %>%
@@ -58,4 +50,4 @@ gt::gt(rt_tbl) %>%
   gt::cols_label(Cases = "", Count = "") %>%
   gt::fmt_markdown(columns = dplyr::everything(), rows = c(F, F, T,T,T)) %T>%
   {show(.)} %>%
-  gt::gtsave(paste0("figs/rt_table_", Sys.Date(), ".png"))
+  gt::gtsave(paste0("~/covidModel/figs/rt_table_", Sys.Date(), ".png"))
