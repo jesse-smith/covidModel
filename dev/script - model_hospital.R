@@ -1,5 +1,4 @@
-devtools::load_all()
-# library(covidModel)
+library(covidModel)
 library(magrittr)
 # Can also load limited dataset in with readxl, etc
 limited_data <- coviData:::load_limited() %>%
@@ -7,8 +6,11 @@ limited_data <- coviData:::load_limited() %>%
 
 limited_data %>%
   dplyr::select(date, likely_covid_hospitalized) %>%
-  na.contiguous() %$%
-  model_hospital(
+  as.ts() %>%
+  na.contiguous() %>%
+  dplyr::as_tibble() %>%
+  dplyr::mutate(date = lubridate::as_date(date)) %$%
+  covidModel:::model_hospital(
     likely_covid_hospitalized,
     dates = date,
     niter = 11000
@@ -203,5 +205,5 @@ observations %>%
   ggplot2::ylab("COVID+ Census") +
   ggplot2::xlab("Date")
 
-ggplot2::ggsave(paste0("figs/Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
+ggplot2::ggsave(paste0("~/covidModel/figs/Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
 

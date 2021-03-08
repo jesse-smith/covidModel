@@ -1,12 +1,15 @@
-devtools::load_all()
-
+library(covidModel)
+library(magrittr)
 limited_data <- coviData:::load_limited() %>%
   coviData::preprocess()
 
 limited_data %>%
   dplyr::select(date, likely_covid_icu) %>%
-  na.contiguous() %$%
-  model_hospital(
+  as.ts() %>%
+  na.contiguous() %>%
+  dplyr::as_tibble() %>%
+  dplyr::mutate(date = lubridate::as_date(date)) %$%
+  covidModel:::model_hospital(
     likely_covid_icu,
     dates = date,
     niter = 11000
@@ -203,5 +206,5 @@ observations %>%
   ggplot2::ylab("COVID+ Census") +
   ggplot2::xlab("Date")
 
-ggplot2::ggsave(paste0("figs/ICUplot_", Sys.Date(), ".png"), width = 16, height = 9)
+ggplot2::ggsave(paste0("~/covidModel/figs/ICUplot_", Sys.Date(), ".png"), width = 16, height = 9)
 
