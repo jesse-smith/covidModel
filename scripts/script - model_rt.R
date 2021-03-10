@@ -50,4 +50,4 @@ gt::gt(rt_tbl) %>%
   gt::cols_label(Cases = "", Count = "") %>%
   gt::fmt_markdown(columns = dplyr::everything(), rows = c(F, F, T,T,T)) %T>%
   {show(.)} %>%
-  gt::gtsave(paste0("~/covidModel/figs/rt_table_", Sys.Date(), ".png"))
+  gt::gtsave(paste0("figs/rt_table_", Sys.Date(), ".png"))
