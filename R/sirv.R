@@ -49,8 +49,8 @@
 #'   transmissible. Assumed to not overlap with `pct_var_ek`.
 #'
 #' @param pct_var_ek `numeric` between `0` and `1`.
-#'   Percent of variants that possess the E484K mutation. Assumed to not
-#'   overlap with `pct_var_uk`.
+#'   Percent of variants that possess the E484K mutation (vaccine resistance).
+#'   Assumed to not overlap with `pct_var_uk`.
 #'
 #' @param detect `numeric` between `0` and `1`.
 #'   The percent of true cases detected; applies to both past and future cases.

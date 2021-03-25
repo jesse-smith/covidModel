@@ -64,8 +64,8 @@ Percent of variants that are B.1.1.7 (UK) variant or similarly highly
 transmissible. Assumed to not overlap with \code{pct_var_ek}.}
 
 \item{pct_var_ek}{\code{numeric} between \code{0} and \code{1}.
-Percent of variants that possess the E484K mutation. Assumed to not
-overlap with \code{pct_var_uk}.}
+Percent of variants that possess the E484K mutation (vaccine resistance).
+Assumed to not overlap with \code{pct_var_uk}.}
 
 \item{detect}{\code{numeric} between \code{0} and \code{1}.
 The percent of true cases detected; applies to both past and future cases.}
