@@ -70,6 +70,6 @@ deanomalize <- function(
       max_anoms = cutoff,
       verbose = FALSE
     ) %T>%
-    {if (plot) anomalize::plot_anomalies(.) %>% show()} %>%
+    {if (plot) anomalize::plot_anomalies(.) %>% methods::show()} %>%
     anomalize::clean_anomalies()
 }

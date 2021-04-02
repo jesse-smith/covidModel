@@ -11,7 +11,7 @@ bsts_ar1_regression <- function(
 
   formula <- rlang::enexpr(formula) %>%
     rlang::expr_text() %>%
-    as.formula()
+    stats::as.formula()
 
   bsts::AddDynamicRegression(
     state.specification = state.spec,

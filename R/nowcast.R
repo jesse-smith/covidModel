@@ -59,8 +59,11 @@ nowcast_cases <- function(
         extract_error_bsts(burn = burn)
     ) %>%
     dplyr::summarize(
-      predict_robust = robust[[1L]] %>%
-        predict(h = vec_size(new_dates), burn = ceiling(burn * iterations)) %>%
+      predict_robust = .data[["robust"]][[1L]] %>%
+        stats::predict(
+          h = vec_size({{ new_dates }}),
+          burn = ceiling({{ burn }} * {{ iterations }})
+        ) %>%
         extract2("median") %>%
         expm1()
     ) %>%
@@ -135,16 +138,25 @@ nowcast_tests <- function(
       ) %>% list()
     ) %>%
     dplyr::summarize(
-      predict_semilocal = semilocal[[1L]] %>%
-        predict(h = vec_size(new_dates), burn = ceiling(burn * iterations)) %>%
+      predict_semilocal = .data[["semilocal"]][[1L]] %>%
+        stats::predict(
+          h = vec_size({{ new_dates }}),
+          burn = ceiling({{ burn }} * {{ iterations }})
+        ) %>%
         extract2("median") %>%
         raise_to_power(2),
-      predict_local = local[[1L]] %>%
-        predict(h = vec_size(new_dates), burn = ceiling(burn * iterations)) %>%
+      predict_local = .data[["local"]][[1L]] %>%
+        stats::predict(
+          h = vec_size({{ new_dates }}),
+          burn = ceiling({{ burn }} * {{ iterations }})
+        ) %>%
         extract2("median") %>%
         raise_to_power(2),
-      predict_robust = robust[[1L]] %>%
-        predict(h = vec_size(new_dates), burn = ceiling(burn * iterations)) %>%
+      predict_robust = .data[["robust"]][[1L]] %>%
+        stats::predict(
+          h = vec_size({{ new_dates }}),
+          burn = ceiling({{ burn }} * {{ iterations }})
+        ) %>%
         extract2("median") %>%
         raise_to_power(2)
     ) %>%

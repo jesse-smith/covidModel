@@ -18,8 +18,8 @@ calc_active_cases <- function(
 ) {
   if (is.null(date)) {
     date <- coviData::path_inv() %>%
-      fs::path_file() %>%
-      fs::path_ext_remove() %>%
+      stringr::str_extract("[^/~]+$") %>%
+      stringr::str_extract("^[^.]+") %>%
       stringr::str_extract("[0-9]{1,4}[^0-9]*[0-9]{1,2}[^0-9][0-9]{1,2}") %>%
       stringr::str_replace_all("[^0-9]+", "-")
   }

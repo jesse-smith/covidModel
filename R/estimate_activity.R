@@ -122,7 +122,7 @@ discretize_serial_interval <- function(mean = 6, sd = 4.17, cutoff = 0.99) {
     shape <- gamma_shape(mean = mean, sd = sd)
     rate <- gamma_rate(mean = mean, sd = sd)
 
-    k_max <- qgamma(cutoff, shape = shape, rate = rate) %>% ceiling()
+    k_max <- stats::qgamma(cutoff, shape = shape, rate = rate) %>% ceiling()
   } else {
     k_max <- ceiling(cutoff)
   }

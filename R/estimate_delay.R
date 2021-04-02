@@ -97,17 +97,17 @@ estimate_delay <- function(
       MASS::rlm(
         x ~ 1L,
         weights = w,
-        na.action = na.exclude,
+        na.action = stats::na.exclude,
         wt.method = "case",
         maxit = 1e4
-      ) %>% coef()
+      ) %>% stats::coef()
     }
   } else {
     if (!quiet) {
       rlang::inform("`period` is less than 14 days; using non-robust average")
     }
     wt_mean <- function(x, w) {
-      weighted.mean(
+      stats::weighted.mean(
         x,
         w = w,
         na.rm = TRUE
@@ -150,7 +150,7 @@ estimate_delay <- function(
   	  ) %>%
       dplyr::group_by(.data[[collect_nm]]) %>%
       dplyr::summarize(
-        delay = quantile(delay, prob = pct, type = 8),
+        delay = stats::quantile(.data[["delay"]], prob = pct, type = 8),
         n = dplyr::n()
       ) %>%
       fill_dates(!!rlang::sym(collect_nm), end = today) %>%
@@ -158,7 +158,8 @@ estimate_delay <- function(
         .data[[collect_nm]],
         prior_delay = wt_mean_rolling(.data[["delay"]], .data[["n"]]),
         t_from_today = as.integer(today - .data[[collect_nm]]),
-        incomplete = (round(prior_delay) >= t_from_today) %>%
+        incomplete = round(.data[["prior_delay"]]) %>%
+          is_weakly_greater_than(.data[["t_from_today"]]) %>%
           tidyr::replace_na(FALSE) %>%
           dplyr::cumany()
       ) %>%

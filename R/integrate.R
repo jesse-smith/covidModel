@@ -68,9 +68,9 @@ vec_fun <- function(
     ties_is_correct_list <- FALSE
   }
 
-  assertthat::assert_that(
+  coviData::assert(
     any(ties_is_ordered, ties_is_fun, ties_is_correct_list),
-    msg = paste0(
+    message = paste0(
       "`ties` must be one of:\n\n",
       rlang::format_error_bullets(
         c(
@@ -113,9 +113,9 @@ vec_fun <- function(
 
     deriv <- vctrs::vec_cast(deriv, to = integer()) %>% extract2(1)
 
-    assertthat::assert_that(
+    coviData::assert(
       deriv %in% c(0L, 1L, 2L, 3L),
-      msg = "`deriv` must be an integer between 0 and 3"
+      message = "`deriv` must be an integer between 0 and 3"
     )
 
     vctrs::vec_assert(deriv, size = 1L)

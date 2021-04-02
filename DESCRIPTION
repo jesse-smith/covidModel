@@ -14,33 +14,34 @@ Description: covidModel contains inference and prediction
     may be included.
 License: GPL-3
 Imports:
-    anomalize (>= 0.2.2),
-    assertthat (>= 0.2.1),
-    Boom (>= 0.9.6),
-    bsts (>= 0.9.5),
-    coviData (>= 0.0.0.9001),
-    dplyr (>= 1.0.2),
-    EpiEstim (>= 2.2.3),
-    ggplot2 (>= 3.3.2),
-    lubridate (>= 1.7.9.2),
-    magrittr (>= 1.5),
+    anomalize,
+    bsts,
+    coviData,
+    deSolve,
+    EpiEstim,
+    magrittr,
     MASS,
-    purrr (>= 0.3.4),
-    rlang (>= 0.1.2),
-    stringr (>= 1.4.0),
-    tibble (>= 3.0.4),
-    tidylog (>= 1.0.2),
-    tidyr (>= 1.1.2),
-    timetk (>= 2.6.0),
-    vctrs (>= 0.3.5),
-    zoo (>= 1.8.8)
+    methods,
+    rlang,
+    tidylog,
+    vctrs
 Suggests: 
+    Boom,
     covr,
+    dplyr,
+    ggplot2,
+    lubridate,
+    purrr,
     roxygen2,
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
+    stringr,
+    testthat (>= 3.0.0),
+    tibble,
+    tidyr,
+    timetk,
+    zoo
 Remotes: 
     jesse-smith/coviData
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
