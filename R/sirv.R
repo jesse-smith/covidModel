@@ -37,7 +37,7 @@
 #' @param vac_eff `numeric` between `0` and `1`.
 #'   Efficacy of vaccination and natural immunity for non-resistant variants.
 #'
-#' @param vacc_eff_ek `numeric` between `0` and `1`.
+#' @param vac_eff_ek `numeric` between `0` and `1`.
 #'   Efficacy of vaccination and natural immunity for resistant variants
 #'   (with the E484K mutation).
 #'

@@ -56,6 +56,10 @@ The fraction of vaccinated people vaccinated who have never had COVID
 \item{vac_eff}{\code{numeric} between \code{0} and \code{1}.
 Efficacy of vaccination and natural immunity for non-resistant variants.}
 
+\item{vac_eff_ek}{\code{numeric} between \code{0} and \code{1}.
+Efficacy of vaccination and natural immunity for resistant variants
+(with the E484K mutation).}
+
 \item{pct_var}{\code{numeric} between \code{0} and \code{1}.
 Percent of active cases that are variants of some form.}
 
@@ -69,10 +73,6 @@ Assumed to not overlap with \code{pct_var_uk}.}
 
 \item{detect}{\code{numeric} between \code{0} and \code{1}.
 The percent of true cases detected; applies to both past and future cases.}
-
-\item{vacc_eff_ek}{\code{numeric} between \code{0} and \code{1}.
-Efficacy of vaccination and natural immunity for resistant variants
-(with the E484K mutation).}
 }
 \value{
 A \code{tibble} with columns
