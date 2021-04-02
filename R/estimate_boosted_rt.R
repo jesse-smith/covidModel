@@ -316,12 +316,12 @@ weight_rt_error <- function(.data) {
       base_cv = base[["cv_mean"]] %>%
         vec_slice(i = .data[["horizon"]]),
       t_i = as.integer(.data[[".t"]] - min(.data[[".t"]]) + 1L),
-      wt_mean = base_mean^pwr[t_i],
-      wt_cv = base_cv^pwr[t_i],
-      wt = wt_mean + wt_cv
+      wt_mean = .data[["base_mean"]]^vec_slice({{ pwr }}, i = .data[["t_i"]]),
+      wt_cv = .data[["base_cv"]]^vec_slice({{ pwr }}, i = .data[["t_i"]]),
+      wt = .data[["wt_mean"]] + .data[["wt_cv"]]
     ) %>%
     dplyr::mutate(
-      wt = wt / max(wt, na.rm = TRUE)
+      wt = .data[["wt"]] / max(.data[["wt"]], na.rm = TRUE)
     ) %>%
     dplyr::select(-c("base_mean", "base_cv", "wt_mean", "wt_cv", "t_i"))
 }

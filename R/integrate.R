@@ -324,7 +324,7 @@ functionalize <- function(.data, .x, .t = NULL, slices = 1e3L) {
     tibble::as_tibble() %>%
     dplyr::transmute(
       .t = .t,
-      data = value
+      data = .data[["value"]]
     ) %>%
     interpolate() ->
   integral

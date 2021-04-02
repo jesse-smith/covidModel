@@ -1,6 +1,6 @@
 simulate_infections <- function(rt, h = 1L, population = 1e6, detection = 1) {
 
-  rt <- dplyr::mutate(rt, .incid = .incid / detection)
+  rt <- dplyr::mutate(rt, .incid = .data[[".incid"]] / {{ detection }})
 
   .t <- rt[[".t"]]
 

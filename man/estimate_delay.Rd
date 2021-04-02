@@ -6,8 +6,8 @@
 \usage{
 estimate_delay(
   .data,
-  .collection_date = collection_date,
-  .report_date = report_date,
+  .collection_date = "collection_date",
+  .report_date = "report_date",
   pct = 0.9,
   period = 14L,
   today = Sys.Date(),

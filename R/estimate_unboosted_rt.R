@@ -191,16 +191,16 @@ tidy_rt <- function(rt) {
   rt[["R"]] %>%
     dplyr::as_tibble() %>%
     dplyr::mutate(
-      .t = vec_slice(rt[["dates"]], i = t_end)
+      .t = vec_slice(rt[["dates"]], i = .data[["t_end"]])
     ) %>%
     dplyr::transmute(
-      .t,
+      .data[[".t"]],
       .incid = rt[["I"]] %>% vec_slice(i = 1:(vec_size(.) - 1L)),
-      .pred = `Median(R)`,
-      .pred_lower = `Quantile.0.025(R)`,
-      .pred_upper = `Quantile.0.975(R)`,
-      .mean = `Mean(R)`,
-      .cv = `Std(R)` / `Mean(R)`
+      .pred = .data[["Median(R)"]],
+      .pred_lower = .data[["Quantile.0.025(R)"]],
+      .pred_upper = .data[["Quantile.0.975(R)"]],
+      .mean = .data[["Mean(R)"]],
+      .cv = .data[["Std(R)"]] / .data[["Mean(R)"]]
     ) %>%
     covidmodel_rt(serial_interval = si)
 }

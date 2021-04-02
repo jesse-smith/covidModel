@@ -46,8 +46,8 @@
 #' @export
 estimate_delay <- function(
   .data,
-  .collection_date = collection_date,
-  .report_date = report_date,
+  .collection_date = "collection_date",
+  .report_date = "report_date",
   pct = 0.9,
   period = 14L,
   today = Sys.Date(),
@@ -163,7 +163,7 @@ estimate_delay <- function(
           tidyr::replace_na(FALSE) %>%
           dplyr::cumany()
       ) %>%
-      dplyr::select(-t_from_today) %>%
+      dplyr::select(-"t_from_today") %>%
       purrr::when(
         rtn == "last_complete" ~ dplyr::mutate(
             .,
