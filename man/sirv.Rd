@@ -10,16 +10,16 @@ sirv(
   rt = 1,
   r0 = NULL,
   pop = 937166,
-  active_cases = 75,
-  total_cases = 90110,
-  total_vac = 169150,
+  active_cases = 500,
+  total_cases = 91350,
+  total_vac = 222550,
   vac_per_day = 3500,
   pct_vac_s = 0.8,
   vac_eff = 0.9,
   vac_eff_ek = 0.6,
   pct_var = 0.1/0.85,
   pct_var_uk = 0.85,
-  pct_var_ek = 0.01,
+  pct_var_ek = 0,
   detect = 1/3
 )
 }
