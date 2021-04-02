@@ -205,7 +205,7 @@ sirv <- function(
       time = start + .data[["time"]],
       dplyr::across(-"time", as.double),
       i = c(NA_real_, diff(.data[["I"]])) + dplyr::lag(.data[["I"]]) / 5,
-      i_obs = i * {{ detect }}
+      i_obs = .data[["i"]] * {{ detect }}
     )
 
   if (any(!dplyr::between(round(result[["S"]]), 0, pop))) {
