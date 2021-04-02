@@ -7,6 +7,6 @@ as_zoo <- function(.data, ..., .t) {
   if (vec_size(col_nms) == 1L) {
     zoo::zoo(x = .data[[col_nms]], order.by = .data[[t_nm]])
   } else {
-    zoo::zoo(x = data[col_nms], order.by = .data[[t_nm]])
+    zoo::zoo(x = .data[col_nms], order.by = .data[[t_nm]])
   }
 }
