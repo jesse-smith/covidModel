@@ -1,9 +1,9 @@
 #' Simulate a SIR Model with Vaccination and Variants
 #'
 #' `sirv()` simulates a SIR model with vaccinations, a variant type with
-#' increased transmissibility, and a variant type with immunity resistance. For
-#' simplicity, vaccine- and naturally-acquired immunity are considered
-#' equivalent.
+#' increased transmissibility, and a variant type with immunity resistance +
+#' increased transmissibility. For simplicity, vaccine- and naturally-acquired
+#' immunity (from non-vaccine-resistant variants) are considered equivalent.
 #'
 #' @param start `Date` or coercible to `Date`. The start date for simulation.
 #'
@@ -18,8 +18,8 @@
 #'
 #' @param pop `numeric`. The size of the population being modeled.
 #'
-#' @param active_cases `numeric`.
-#'   The observed number of active cases at the start of simulation.
+#' @param incid `numeric`.
+#'   The observed number of cases per day at the start of simulation.
 #'
 #' @param total_cases `numeric`.
 #'   The observed number of total cases at the start of simulation.
@@ -37,154 +37,98 @@
 #' @param vac_eff `numeric` between `0` and `1`.
 #'   Efficacy of vaccination and natural immunity for non-resistant variants.
 #'
-#' @param vac_eff_ek `numeric` between `0` and `1`.
-#'   Efficacy of vaccination and natural immunity for resistant variants
-#'   (with the E484K mutation).
+#' @param vac_eff_p1 `numeric` between `0` and `1`.
+#'   Efficacy of vaccination and natural immunity for resistant variants.
 #'
-#' @param pct_var `numeric` between `0` and `1`.
-#'   Percent of active cases that are variants of some form.
+#' @param pct_uk `numeric` between `0` and `1`.
+#'   Percent of cases that are B.1.1.7 (UK) variant.
 #'
-#' @param pct_var_uk `numeric` between `0` and `1`.
-#'   Percent of variants that are B.1.1.7 (UK) variant or similarly highly
-#'   transmissible. Assumed to not overlap with `pct_var_ek`.
-#'
-#' @param pct_var_ek `numeric` between `0` and `1`.
-#'   Percent of variants that possess the E484K mutation (vaccine resistance).
-#'   Assumed to not overlap with `pct_var_uk`.
+#' @param pct_p1 `numeric` between `0` and `1`.
+#'   Percent of cases that are P.1 (Brazilian) variant.
 #'
 #' @param detect `numeric` between `0` and `1`.
 #'   The percent of true cases detected; applies to both past and future cases.
 #'
 #' @return A `tibble` with columns
 #'   `time <date>`, `S <dbl>`, `I <dbl>`, `R <dbl>`,
-#'   `pct_uk <dbl>`, `pct_ek <dbl>`
+#'   `pct_uk <dbl>`, `pct_p1 <dbl>`
 sirv <- function(
   start = Sys.Date(),
   end = Sys.Date() + 60L,
-  rt = 1,
+  rt = 1.07,
   r0 = NULL,
   pop = 937166,
-  active_cases = 500,
+  incid = 100,
   total_cases = 91350,
-  total_vac = 222550,
+  detect = 1/3,
+  total_vac = 238340,
   vac_per_day = 3500,
   pct_vac_s = 0.8,
   vac_eff = 0.9,
-  vac_eff_ek = 0.6,
-  pct_var = 0.1 / 0.85,
-  pct_var_uk = 0.85,
-  pct_var_ek = 0,
-  detect = 1/3
+  vac_eff_p1 = 0.6,
+  pct_uk = 0.2,
+  pct_p1 = 0.001,
+  rt_uk_coef = 1.5,
+  rt_p1_coef = 1.5
 ) {
 
-  is_scalar_numeric <- function(x) {
-    rlang::is_scalar_integer(x) || rlang::is_scalar_double(x)
+  # Mean Serial Interval is 5 days
+  si <- 5
+
+  # Calculate wild type reproduction number given `pct_uk` and observed `rt`
+  pct_n <- 1 - pct_uk - pct_p1
+  if (is.null(r0)) {
+    r0 <- rt / (pct_n + pct_uk * rt_uk_coef + pct_p1 * rt_p1_coef)
+  } else {
+    rt <- r0 * (pct_n + pct_uk * rt_uk_coef + pct_p1 * rt_p1_coef)
   }
 
-  # Check inputs
-  start <- lubridate::as_date(start)
-  end <- lubridate::as_date(end)
-  coviData::assert_all(start <= end)
-  coviData::assert_all(is_scalar_numeric(rt), 0 <= rt)
-  coviData::assert_all(is_scalar_numeric(pop), 0 <= pop)
-  coviData::assert_all(
-    is_scalar_numeric(active_cases),
-    0 <= active_cases
-  )
-  coviData::assert_all(
-    is_scalar_numeric(total_cases),
-    0 <= total_cases,
-    active_cases <= total_cases
-  )
-  coviData::assert_all(
-    is_scalar_numeric(total_vac),
-    0 <= total_vac,
-    total_vac <= pop
-  )
-  coviData::assert_all(
-    is_scalar_numeric(vac_per_day),
-    0 <= vac_per_day,
-    vac_per_day <= pop
-  )
-  coviData::assert_all(
-    is_scalar_numeric(pct_vac_s),
-    0 <= pct_vac_s,
-    pct_vac_s <= 1
-  )
-  coviData::assert_all(
-    is_scalar_numeric(vac_eff),
-    0 <= vac_eff,
-    vac_eff <= 1
-  )
-  coviData::assert_all(
-    is_scalar_numeric(vac_eff_ek),
-    0 <= vac_eff_ek,
-    vac_eff_ek <= 1
-  )
-  coviData::assert_all(
-    is_scalar_numeric(pct_var),
-    0 <= pct_var,
-    pct_var <= 1
-  )
-  coviData::assert_all(
-    is_scalar_numeric(pct_var_uk),
-    0 <= pct_var_uk,
-    pct_var_uk <= 1
-  )
-  coviData::assert_all(
-    is_scalar_numeric(pct_var_ek),
-    0 <= pct_var_ek,
-    pct_var_ek <= 1
-  )
-  coviData::assert_all(
-    is_scalar_numeric(detect),
-    0 < detect,
-    detect <= 1,
-    active_cases / detect <= pop,
-    total_cases  / detect <= pop
-  )
-
-  coviData::assert_all((pct_vac_s * total_vac) + (total_cases / detect) <= pop)
-  coviData::assert_all(pct_var_uk + pct_var_ek <= 1)
-
-
-  # Calculate absolute percentages for variants
-  pct_uk <- pct_var * pct_var_uk
-  pct_ek <- pct_var * pct_var_ek
+  # Calculate active cases
+  active_cases <- (incid * si / rt)
 
   # Initial compartment values
   R <- (total_cases - active_cases) / detect + total_vac * pct_vac_s
   I <- active_cases / detect
   S <- pop - I - R
 
-  # Calculate wild type reproduction number given `pct_uk` and observed `rt`
-  if (is.null(r0)) {
-    r0 <- rt / (1 + 0.5 * pct_uk)
-  } else {
-    rt <- r0 * (1 + 0.5 * pct_uk)
-  }
-
-  cat(paste0("R_wt: ", round(r0, 2), "\nR_v:  ", round(r0*1.5, 2), "\nRt: ", round(rt, 2)))
+  cat(paste0(
+    "\n",
+    "Rn:  ", round(r0, 2), "\n",
+    "Ruk: ", round(r0 * rt_uk_coef, 2), "\n",
+    "Rp1: ", round(r0 * rt_p1_coef, 2), "\n",
+    "Rt:  ", round(rt, 2),
+    "\n"
+  ))
 
   # Calculate effective initial susceptible
-  S0 <- S + (1 - vac_eff)*(1 - pct_ek)*R + (1 - vac_eff_ek)*pct_ek*R
+  S0 <- S + (1 - vac_eff)*(1 - pct_p1)*R + (1 - vac_eff_p1)*pct_p1*R
 
   # Calculate vaccination rate
-  v_rt <- vac_per_day * pct_vac_s
+  v_rate <- vac_per_day * pct_vac_s
 
   # Translate to model parameters
-  si <- 5
   beta_n <- (r0 / si) / S0
-  beta_uk <- 1.5 * beta_n
-  beta_ek <- beta_n
+  beta_uk <- rt_uk_coef * beta_n
+  beta_p1 <- rt_p1_coef * beta_n
   gamma  <- 1 / si
 
   # Pass initial values and parameters to deSolve
-  y <- c(S = S, I = I, R = R, pct_uk = pct_uk, pct_ek = pct_ek)
+  y <- c(
+    S = S,
+    I = I,
+    R = R,
+    pct_uk = pct_uk,
+    pct_p1 = pct_p1,
+    reinf_n  = 0,
+    reinf_p1 = 0,
+    pct_R_imm_n  = 0,
+    pct_R_imm_p1 = 0,
+    i = incid / detect
+  )
+
   params <- c(
-    c(beta_n = beta_n, beta_uk = beta_uk, beta_ek = beta_ek, gamma = gamma),
-    c(S0 = S0, pop = pop),
-    c(v_rt = v_rt, vac_eff = vac_eff, vac_eff_ek = vac_eff_ek)
+    c(beta_n = beta_n, beta_uk = beta_uk, beta_p1 = beta_p1, gamma = gamma),
+    c(pop = pop, v_rate = v_rate, vac_eff = vac_eff, vac_eff_p1 = vac_eff_p1)
   )
 
   # Create times for simulation
@@ -204,41 +148,9 @@ sirv <- function(
     dplyr::mutate(
       time = start + .data[["time"]],
       dplyr::across(-"time", as.double),
-      i = c(NA_real_, diff(.data[["I"]])) + dplyr::lag(.data[["I"]]) / 5,
       i_obs = .data[["i"]] * {{ detect }}
-    )
-
-  if (any(!dplyr::between(round(result[["S"]]), 0, pop))) {
-    rlang::warn("One or more values of `S` are outside valid range")
-  }
-  if (any(!dplyr::between(round(result[["I"]]), 0, pop))) {
-    rlang::warn("One or more values of `I` are outside valid range")
-  }
-  if (any(!dplyr::between(round(result[["R"]]), 0, pop))) {
-    rlang::warn("One or more values of `R` are outside valid range")
-  }
-  if (any(!dplyr::between(round(rowSums(result[c("S", "I", "R")])), 0, pop))) {
-    rlang::warn(
-      paste(
-        "Total size of simulation is outside valid range",
-        "at one or more time points"
-      )
-    )
-  }
-  if (any(!dplyr::between(result[["pct_uk"]], 0, 1))) {
-    rlang::warn("One or more values of `pct_uk` are outside valid range")
-  }
-  if (any(!dplyr::between(result[["pct_ek"]], 0, 1))) {
-    rlang::warn("One or more values of `pct_ek` are outside valid range")
-  }
-  if (any(!dplyr::between(rowSums(result[c("pct_uk", "pct_ek")]), 0, 1))) {
-    rlang::warn(
-      paste(
-        "Total percent of variant cases is outside valid range",
-        "at one or more time points"
-      )
-    )
-  }
+    ) %>%
+    dplyr::select(-dplyr::contains(c("reinf_", "_R_imm_")))
 
   result
 }
@@ -266,64 +178,158 @@ sirv_fn <- function(t, y, params, ...) {
 
     # When the number of active cases rounds to 0, the epidemic is over
     if (round(I) == 0) {
-      return(list(c(dS = 0, dI = 0, dR = 0, dPuk = 0, dPek = 0)))
+      return(list(c(
+        dS = 0,
+        dI = 0,
+        dR = 0,
+        dPuk = 0,
+        dPp1 = 0,
+        d_reinf_n  = 0,
+        d_reinf_p1 = 0,
+        d_pct_R_imm_n  = 0,
+        d_pct_R_imm_p1 = 0,
+        di = -i
+      )))
+    }
+
+    # Save previous observed cases
+    i_prev <- i
+
+    # Ensure compartments are non-negative
+    if (S < 0) S <- 0
+    if (I < 0) I <- 0
+    if (R < 0) R <- 0
+
+    # Ensure percentages are non-negative
+    if (pct_uk < 0) pct_uk <- 0
+    if (pct_p1 < 0) pct_p1 <- 0
+
+    # Ensure percentages add to 1
+    if (pct_uk > 1) {
+      pct_uk <- 1
+      pct_p1 <- 0
+    }
+    if (pct_p1 > 1) {
+      pct_p1 <- 1
+      pct_uk <- 0
     }
 
     # Create synthetic I compartments for different variants
-    Iuk <- I * pct_uk
-    Iek <- I * pct_ek
-    In  <- I - Iuk - Iek
+    Iuk <- pmax(I * pct_uk, 0)
+    Ip1 <- pmax(I * pct_p1, 0)
+    In  <- pmax(I - Iuk - Ip1, 0)
 
     # Translate into flows
-    is_n  <- S * In  * beta_n
-    is_uk <- S * Iuk * beta_uk
-    is_ek <- S * Iek * beta_ek
-    ir_n  <- R * In  * beta_n  * (1 - vac_eff)
-    ir_uk <- R * Iuk * beta_uk * (1 - vac_eff)
-    ir_ek <- R * Iek * beta_ek * (1 - vac_eff_ek)
-    i_n  <- is_n + ir_n
-    i_uk <- is_uk + ir_uk
-    i_ek <- is_ek + ir_ek
-    r_n  <- In  * gamma
-    r_uk <- Iuk * gamma
-    r_ek <- Iek * gamma
-    is <- is_n + is_uk + is_ek
-    ir <- ir_n + ir_uk + ir_ek
-    s <- 0
-    i <- is + ir
-    r <- r_n + r_uk + r_ek
-    v <- v_rt * S / S0
 
-    # Update derivatives
+    # S -> I
+    is_n  <- pmax(S * In  * beta_n, 0)
+    is_uk <- pmax(S * Iuk * beta_uk, 0)
+    is_p1 <- pmax(S * Ip1 * beta_p1, 0)
+
+    # R -> I
+    Rn  <- pmax(R * (1 - pct_R_imm_p1 - pct_R_imm_n), 0)
+    Rp1 <- pmax(R * (1 - pct_R_imm_p1), 0)
+    ir_n  <- pmax(Rn  * In  * beta_n  * (1 - vac_eff), 0)
+    ir_uk <- pmax(Rn  * Iuk * beta_uk * (1 - vac_eff), 0)
+    ir_p1 <- pmax(Rp1 * Ip1 * beta_p1 * (1 - vac_eff_p1), 0)
+
+    # * -> I
+    i_n  <- pmax(is_n  + ir_n, 0)
+    i_uk <- pmax(is_uk + ir_uk, 0)
+    i_p1 <- pmax(is_p1 + ir_p1, 0)
+
+    # I -> R
+    r_n  <- pmax(In  * gamma, 0)
+    r_uk <- pmax(Iuk * gamma, 0)
+    r_p1 <- pmax(Ip1 * gamma, 0)
+
+    # Update synthetic compartment derivatives
+    dIn  <- i_n  - r_n
     dIuk <- i_uk - r_uk
-    dIek <- i_ek - r_ek
+    dIp1 <- i_p1 - r_p1
+
+    # Handle negative synthetic compartment values
+    if (In +  dIn  < 0) {
+      dIn  <- -In
+      r_n  <- pmax(i_n  - dIn, 0)
+    }
+    if (Iuk + dIuk < 0) {
+      dIuk <- -Iuk
+      r_uk <- pmax(i_uk - dIuk, 0)
+    }
+    if (Ip1 + dIp1 < 0) {
+      dIp1 <- -Ip1
+      r_p1 <- pmax(i_p1 - dIp1, 0)
+    }
+
+    # S -> R (vaccinated)
+    v <- pmin(S, v_rate)
+
+    # Total I's
+    is <- pmax(is_n + is_uk + is_p1, 0)
+    ir <- pmax(ir_n + ir_uk + ir_p1, 0)
+
+    # Totals
+    s <- 0
+    i <- pmax(is + ir, 0)
+    r <- pmax(r_n + r_uk + r_p1, 0)
+
+    # Update compartment derivatives
     dS   <- s - is - v
     dI   <- i - r
     dR   <- r + v - ir
 
-    # Update percentages & derivatives
-    pct_uk_next <- (Iuk + dIuk) / (I + dI)
-    pct_ek_next <- (Iek + dIek) / (I + dI)
-    dPuk <- pct_uk_next - pct_uk
-    dPek <- pct_ek_next - pct_ek
+    # Handle negative compartment values
+    if (S + dS < 0) {
+      dS <- -S
+    }
+    if (I + dI < 0) {
+      dI <- -I
 
-    list(c(dS, dI, dR, dPuk, dPek))
+    }
+    if (R + dR < 0) {
+      dR <- -R
+    }
+    if (Iuk + dIuk < 0) {
+      dIuk <- -Iuk
+    }
+    if (Ip1 + dIp1 < 0) {
+      dIp1 <- -Ip1
+    }
+
+
+    # Update reinfection derivatives
+    d_reinf_n  <- pmax(ir_n + ir_uk, 0)
+    d_reinf_p1 <- pmax(ir_p1, 0)
+
+    # Update reinfection percentage derivatives
+    dP_R_imm_n  <- pmax((reinf_n  + d_reinf_n)  * gamma / R, 0)
+    dP_R_imm_p1 <- pmax((reinf_p1 + d_reinf_p1) * gamma / R, 0)
+
+    # Update variant percentage derivatives
+    dPuk <- (Iuk + dIuk) / (I + dI) - pct_uk
+    dPp1 <- (Ip1 + dIp1) / (I + dI) - pct_p1
+
+    # Update new cases derivative
+    di <- i - i_prev
+
+    if (i + di < 0) {
+      di <- -i
+    }
+
+    list(c(
+      dS,
+      dI,
+      dR,
+      dPuk,
+      dPp1,
+      d_reinf_n,
+      d_reinf_p1,
+      dP_R_imm_n,
+      dP_R_imm_p1,
+      di
+    ))
   })
 }
 
-plot_sirv <- function(x, .y = .data[["I"]] / 3, ylab = "Observed Cases", group = NULL) {
-  gg_obj <- x %>%
-    ggplot2::ggplot(
-      ggplot2::aes(
-        x = .data[["time"]],
-        y = {{ .y }},
-        group = {{ group }},
-        color = {{ group }}
-      )
-    ) +
-    ggplot2::geom_line(alpha = 1)
 
-  gg_obj %>%
-    coviData::set_covid_theme() %>%
-    coviData::add_axis_labels(xlab = "Date", ylab = ylab)
-}
