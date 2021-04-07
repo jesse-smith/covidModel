@@ -55,19 +55,20 @@
 sirv <- function(
   start = Sys.Date(),
   end = Sys.Date() + 60L,
-  rt = 1.07,
+  rt = 1.05,
   r0 = NULL,
   pop = 937166,
   incid = 100,
-  total_cases = 91350,
+  total_cases = 91906,
   detect = 1/3,
-  total_vac = 238340,
+  total_vac = 248608,
   vac_per_day = 3500,
+  max_pct_vac = 0.75,
   pct_vac_s = 0.8,
   vac_eff = 0.9,
   vac_eff_p1 = 0.6,
   pct_uk = 0.2,
-  pct_p1 = 0.001,
+  pct_p1 = 0.003,
   rt_uk_coef = 1.5,
   rt_p1_coef = 1.5
 ) {
@@ -103,8 +104,8 @@ sirv <- function(
   # Calculate effective initial susceptible
   S0 <- S + (1 - vac_eff)*(1 - pct_p1)*R + (1 - vac_eff_p1)*pct_p1*R
 
-  # Calculate vaccination rate
-  v_rate <- vac_per_day * pct_vac_s
+  # Calculate max vaccinations
+  max_vac = max_pct_vac * pop
 
   # Translate to model parameters
   beta_n <- (r0 / si) / S0
@@ -117,6 +118,7 @@ sirv <- function(
     S = S,
     I = I,
     R = R,
+    V = total_vac,
     pct_uk = pct_uk,
     pct_p1 = pct_p1,
     reinf_n  = 0,
@@ -128,7 +130,8 @@ sirv <- function(
 
   params <- c(
     c(beta_n = beta_n, beta_uk = beta_uk, beta_p1 = beta_p1, gamma = gamma),
-    c(pop = pop, v_rate = v_rate, vac_eff = vac_eff, vac_eff_p1 = vac_eff_p1)
+    c(pop = pop, max_vac = max_vac, V0 = total_vac, pct_vac_s = pct_vac_s),
+    c(v_rate = vac_per_day, vac_eff = vac_eff, vac_eff_p1 = vac_eff_p1)
   )
 
   # Create times for simulation
@@ -182,6 +185,7 @@ sirv_fn <- function(t, y, params, ...) {
         dS = 0,
         dI = 0,
         dR = 0,
+        dV = 0,
         dPuk = 0,
         dPp1 = 0,
         d_reinf_n  = 0,
@@ -199,6 +203,7 @@ sirv_fn <- function(t, y, params, ...) {
     if (S < 0) S <- 0
     if (I < 0) I <- 0
     if (R < 0) R <- 0
+    if (V < 0) V <- 0
 
     # Ensure percentages are non-negative
     if (pct_uk < 0) pct_uk <- 0
@@ -263,7 +268,8 @@ sirv_fn <- function(t, y, params, ...) {
     }
 
     # S -> R (vaccinated)
-    v <- pmin(S, v_rate)
+    v <- pmin(S, v_rate * (max_vac - V) / (max_vac - V0))
+    v_s <- v * pct_vac_s
 
     # Total I's
     is <- pmax(is_n + is_uk + is_p1, 0)
@@ -275,9 +281,10 @@ sirv_fn <- function(t, y, params, ...) {
     r <- pmax(r_n + r_uk + r_p1, 0)
 
     # Update compartment derivatives
-    dS   <- s - is - v
+    dS   <- s - is - v_s
     dI   <- i - r
-    dR   <- r + v - ir
+    dR   <- r + v_s - ir
+    dV   <- v
 
     # Handle negative compartment values
     if (S + dS < 0) {
@@ -321,6 +328,7 @@ sirv_fn <- function(t, y, params, ...) {
       dS,
       dI,
       dR,
+      dV,
       dPuk,
       dPp1,
       d_reinf_n,
