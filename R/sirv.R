@@ -54,7 +54,7 @@
 #'   `pct_uk <dbl>`, `pct_p1 <dbl>`
 sirv <- function(
   start = Sys.Date(),
-  end = Sys.Date() + 60L,
+  end = start + 60L,
   rt = 1.05,
   r0 = NULL,
   pop = 937166,
@@ -62,13 +62,13 @@ sirv <- function(
   total_cases = 91906,
   detect = 1/3,
   total_vac = 248608,
-  vac_per_day = 3500,
+  vac_per_day = 7000,
   max_pct_vac = 0.75,
   pct_vac_s = 0.8,
   vac_eff = 0.9,
   vac_eff_p1 = 0.6,
-  pct_uk = 0.2,
-  pct_p1 = 0.003,
+  pct_uk = 0.35,
+  pct_p1 = 0.01,
   rt_uk_coef = 1.5,
   rt_p1_coef = 1.5
 ) {
