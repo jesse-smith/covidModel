@@ -13,6 +13,15 @@ data <- dplyr::semi_join(
 
 # Estimate Rt with smoothing and boosting
 rt <- estimate_rt(data)
+rough_rt <- estimate_rt(data, trend = 1L, boost = FALSE)
+rt_plot <- plot_rt(rt, .rough_rt = rough_rt) %T>% {if (interactive()) show(.)}
+rt_path <- coviData::path_create(
+  "C:/Users/Jesse.Smith/Documents/covidModel/figs/",
+  paste0("rt_plot", Sys.Date()-1L),
+  ext = "png"
+)
+
+covidReport::save_plot(rt_plot, path = rt_path)
 
 # Get current infectious activity
 
