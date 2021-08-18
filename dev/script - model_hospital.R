@@ -4,6 +4,10 @@ library(magrittr)
 limited_data <- coviData:::load_limited() %>%
   coviData::preprocess()
 
+limited_data <- readxl::read_xlsx("C:/Users/allison.plaxco/Documents/Limited Dataset/status.xlsx",
+                  sheet=1, col_names = TRUE)%>%
+  coviData::preprocess()
+
 limited_data %>%
   dplyr::select(date, likely_covid_hospitalized) %>%
   as.ts() %>%
