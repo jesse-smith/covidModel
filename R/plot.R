@@ -147,7 +147,7 @@ add_rt_interval <- function(gg_obj) {
     ggplot2::geom_ribbon(
       ggplot2::aes(
         ymin = .data[[".pred_lower"]],
-        ymax = .data[[".pred_upper"]]
+        ymax = pmin(.data[[".pred_upper"]], 2.0)
       ),
       fill = "grey30",
       linetype = "blank",
