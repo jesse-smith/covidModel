@@ -1,8 +1,8 @@
 library(covidModel)
 library(magrittr)
 # Can also load limited dataset in with readxl, etc
-limited_data <- coviData:::load_limited() %>%
-  coviData::preprocess()
+#limited_data <- coviData:::load_limited() %>%
+#  coviData::preprocess()
 
 limited_data <- readxl::read_xlsx("C:/Users/allison.plaxco/Documents/Limited Dataset/status.xlsx",
                   sheet=1, col_names = TRUE)%>%
@@ -25,8 +25,8 @@ model$log.likelihood %>%
   tibble::as_tibble() %>%
   dplyr::slice_tail(n = 10000) %>%
   .[[1]] %>%
-  exp() %>%
-  {. / max(.)} ->
+  {. - max(.)} %>%
+  exp()->
 lik
 
 model$one.step.prediction.errors %>%
@@ -47,7 +47,7 @@ model$state.contributions %>%
   .[["value"]] ->
 trend
 
-model %>% predict(h = as.Date("2021-06-30") - max(limited_data$date, na.rm = TRUE), quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
+model %>% predict(h = 14, quantiles = c(0.025, 0.25, 0.475, 0.525, 0.75, 0.975)) %$%
   tibble::tibble(
     obs   = NA_real_,
     trend = median,
@@ -60,7 +60,8 @@ model %>% predict(h = as.Date("2021-06-30") - max(limited_data$date, na.rm = TRU
   ) %>%
   expm1() %>%
   dplyr::mutate(
-    date = seq(max(model$timestamp.info$timestamps) + 1, max(model$timestamp.info$timestamps) + as.numeric(as.Date("2021-06-30") - max(limited_data$date, na.rm = TRUE)), by = 1),
+    date = seq(max(model$timestamp.info$timestamps) + 1,
+               max(model$timestamp.info$timestamps) + 14, by = 1),
     .before = 1
   ) ->
 predictions
@@ -207,7 +208,8 @@ observations %>%
     panel.background = ggplot2::element_rect(color = "white", fill = "white")
   ) +
   ggplot2::ylab("COVID+ Census") +
-  ggplot2::xlab("Date")
+  ggplot2::xlab("Date")+
+  ggplot2:: theme(axis.text.x = ggplot2::element_text(angle = 30))
 
-ggplot2::ggsave(paste0("~/covidModel/figs/Hplot_", Sys.Date(), ".png"), width = 16, height = 9)
+ggplot2::ggsave(paste0("V:/EPI DATA ANALYTICS TEAM/COVID SANDBOX REDCAP DATA/jtf_figs/hosp_fig/hosp_fig_", Sys.Date(), ".png"), width = 16, height = 9)
 
