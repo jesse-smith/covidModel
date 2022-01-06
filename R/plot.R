@@ -31,7 +31,7 @@ plot_rt <- function(
     {if (!is.null(.rough_rt)) add_rt_rough(., .rough_rt = .rough_rt) else .} %>%
     add_rt_interval() %>%
     add_rt_curve() %>%
-    add_covid_events(lab_y = 2) %>%
+    add_covid_events(lab_y = 2.5) %>%
     add_rt_recent() %>%
     add_rt_axis_labels() %>%
     add_rt_title_caption() %>%
@@ -68,7 +68,7 @@ ggplot_rt <- function(
   xlim <- c(start, end)
   ylim <- purrr::when(
     max_span,
-    . <= 1 ~ c(min = 0, max = 2),
+    . <= 1 ~ c(min = 0, max = 2.5),
     ~ c(min = 0, max = 1 + max_span)
   )
 
@@ -147,7 +147,7 @@ add_rt_interval <- function(gg_obj) {
     ggplot2::geom_ribbon(
       ggplot2::aes(
         ymin = .data[[".pred_lower"]],
-        ymax = pmin(.data[[".pred_upper"]], 2.0)
+        ymax = pmin(.data[[".pred_upper"]], 2.5)
       ),
       fill = "grey30",
       linetype = "blank",
@@ -271,7 +271,7 @@ add_rt_title_caption <- function(gg_obj) {
 #' @noRd
 add_rt_scale <- function(gg_obj) {
   add_scale_month(gg_obj) +
-    ggplot2::scale_y_continuous(breaks = c(0, 0.5, 1, 1.5, 2))
+    ggplot2::scale_y_continuous(breaks = c(0, 0.5, 1, 1.5, 2, 2.5))
 }
 
 #' Add Points for Unsmoothed Rt Estimates to an Rt Plot
