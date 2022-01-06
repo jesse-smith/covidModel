@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://jesse-smith.github.io/covidModel/404.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/CODE_OF_CONDUCT.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/CONTRIBUTING.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/SUPPORT.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/authors.html</loc>
+  </url>
+  <url>
     <loc>https://jesse-smith.github.io/covidModel/index.html</loc>
   </url>
   <url>
@@ -68,6 +86,9 @@
   </url>
   <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/gamma-distr-conversion.html</loc>
+  </url>
+  <url>
+    <loc>https://jesse-smith.github.io/covidModel/reference/index.html</loc>
   </url>
   <url>
     <loc>https://jesse-smith.github.io/covidModel/reference/interpolate.html</loc>
