@@ -38,11 +38,11 @@ simulate_infections <- function(rt, h = 1L, population = 1e6, detection = 1) {
 
     new_incid <- current_rt * current_active * susceptible_adjustment
 
-    if (t == 1) {
-      incid_correction <- next_incid - new_incid
-    }
+    # if (t == 1) {
+    #   incid_correction <- next_incid - new_incid
+    # }
 
-    new_incid <- new_incid + incid_correction
+    # new_incid <- max(new_incid + incid_correction, 0)
 
     # Update totals
     .t <- append(.t, current_time + 1)
